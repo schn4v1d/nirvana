@@ -1,16 +1,10 @@
-#include <iostream>
-#include "object.h"
+#include "Cons.h"
+#include "GarbageCollector.h"
 
-using namespace lisp::object;
+using namespace lisp;
 
 int main() {
-  MemoryManager mem{};
+  Value v = make_object_v<Cons>(make_value(1),
+                                make_object_v<Cons>(make_value(2), NIL));
 
-  {
-    ManagedObjectRoot root = mem.allocate_object(std::pair{1, 2});
-  }
-
-  mem.collect();
-
-  return 0;
 }
