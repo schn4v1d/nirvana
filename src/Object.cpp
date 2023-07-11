@@ -10,4 +10,8 @@ obj_tag Object::get_tag() const { return tag; }
 
 Object::Object(obj_tag tag) : tag{tag} {}
 
+std::ostream& Object::print(std::ostream& os) {
+  return os << "#<obj>#";
+}
+
 } // namespace lisp

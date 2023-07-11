@@ -16,4 +16,6 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/Symbol.h
         src/Package.cpp
         src/Package.h
+        src/reader.h
+        src/reader.cpp
 )

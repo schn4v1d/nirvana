@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Value.h"
+#include <ostream>
 
 namespace lisp {
 
@@ -19,13 +20,17 @@ class Object {
 
 protected:
   void mark(bool marking);
-  virtual void trace(bool marking) = 0;
 
 public:
   explicit Object(obj_tag tag);
+  virtual ~Object() = default;
 
   [[nodiscard]] bool get_marked() const;
   [[nodiscard]] obj_tag get_tag() const;
+
+  virtual void trace(bool marking) = 0;
+
+  virtual std::ostream& print(std::ostream& os);
 
   inline Value make_value() {
     return Value{.object = reinterpret_cast<Object *>(
