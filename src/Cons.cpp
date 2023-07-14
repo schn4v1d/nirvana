@@ -14,9 +14,6 @@ void Cons::set_car(Value new_car) { car = new_car; }
 void Cons::set_cdr(Value new_cdr) { cdr = new_cdr; }
 
 void Cons::trace(bool marking) {
-  if (get_marked() == marking)
-    return;
-
   mark(marking);
 
   trace_value(car, marking);
@@ -58,6 +55,24 @@ Cons *make_cons(Value car, Value cdr) { return make_object<Cons>(car, cdr); }
 
 Value make_cons_v(Value car, Value cdr) {
   return make_cons(car, cdr)->make_value();
+}
+
+Value iter_list(const std::function<std::optional<Value>(Value)>& func, Value list) {
+  Value current = list;
+
+  while (is_cons(current)) {
+    Cons *current_cons = get_cons(current);
+
+    std::optional<Value> result = func(current_cons->get_car());
+
+    if (result.has_value()) {
+      return result.value();
+    } else {
+      current = current_cons->get_cdr();
+    }
+  }
+
+  return NIL;
 }
 
 } // namespace lisp

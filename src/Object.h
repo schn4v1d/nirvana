@@ -10,6 +10,8 @@ using obj_tag = std::uint8_t;
 const obj_tag OBJ_CONS = 0;
 const obj_tag OBJ_SYMBOL = 1;
 const obj_tag OBJ_PACKAGE = 2;
+const obj_tag OBJ_ENVIRONMENT = 3;
+const obj_tag OBJ_BINDING = 3;
 
 class Object {
   friend class GarbageCollector;

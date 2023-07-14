@@ -1,6 +1,7 @@
 #include "Cons.h"
 #include "GarbageCollector.h"
 #include "Package.h"
+#include "eval.h"
 #include "reader.h"
 #include <iostream>
 
@@ -12,12 +13,16 @@ int main() {
     init_symbols();
     init_reader();
 
-    std::string input = "(1 . (2 . (3 . nil)))";
-    std::istringstream input_stream{input};
+    std::istringstream input_stream{"(1 2 3 . nil)"};
 
-    Value v = read(input_stream);
+    Environment *environment = make_environment();
 
-    std::cout << v << std::endl;
+    Value v = read(input_stream, environment);
+
+    Value result = eval(v, environment);
+
+    std::cout << "> " << v << std::endl;
+    std::cout << result << std::endl;
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
   }

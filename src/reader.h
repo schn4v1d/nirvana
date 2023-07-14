@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Environment.h"
 #include "Value.h"
 #include <sstream>
 
@@ -17,7 +18,7 @@ enum class syntax_type {
   whitespace,
 };
 
-Value read(std::istringstream &input);
+Value read(std::istringstream &input, Environment *env);
 
 void skip_whitespace(std::istringstream &input);
 

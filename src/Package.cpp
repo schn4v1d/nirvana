@@ -7,9 +7,6 @@ namespace lisp {
 Package::Package(std::string_view name) : Object{OBJ_PACKAGE}, name{name} {}
 
 void Package::trace(bool marking) {
-  if (get_marked() == marking)
-    return;
-
   mark(marking);
 
   for (auto &[_, sym] : internal_symbols) {
@@ -61,6 +58,13 @@ Value Package::intern(std::string_view symbol_name, bool external) {
     return symbol->make_value();
   }
 
+  for (Package *use : used_packages) {
+    symbol = use->get_external_symbol(symbol_name);
+    if (symbol) {
+      return symbol->make_value();
+    }
+  }
+
   symbol = make_symbol(symbol_name, make_value());
 
   if (external) {
@@ -72,6 +76,17 @@ Value Package::intern(std::string_view symbol_name, bool external) {
   return symbol->make_value();
 }
 
+void Package::use_package(Package *package) {
+  for (const auto &[symbol_name, _] : package->external_symbols) {
+    if (package->get_internal_symbol(symbol_name) ||
+        !package->get_external_symbol(symbol_name)) {
+      assert(false);
+    }
+  }
+
+  used_packages.push_back(package);
+}
+
 Package *make_package(std::string_view name) {
   return make_object<Package>(name);
 }
@@ -80,16 +95,26 @@ Value make_package_v(std::string_view name) {
   return make_package(name)->make_value();
 }
 
+bool is_package(Value value) {
+  if (is_object(value)) {
+    return get_object(value)->get_tag() == OBJ_PACKAGE;
+  }
+
+  return false;
+}
+
+Package *get_package(Value value) {
+  return reinterpret_cast<Package *>(get_object(value));
+}
+
 Package *PKG_CL;
 Package *PKG_CL_USER;
-Package *PKG_CURRENT;
 
 void init_packages() {
   PKG_CL = make_package("COMMON-LISP");
 
   PKG_CL_USER = make_package("COMMON-LISP-USER");
-
-  PKG_CURRENT = PKG_CL_USER;
+  PKG_CL_USER->use_package(PKG_CL);
 }
 
 } // namespace lisp

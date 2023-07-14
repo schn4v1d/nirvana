@@ -11,7 +11,8 @@
 namespace lisp {
 
 static std::array<syntax_type, 128> syntax_types{};
-static std::map<char, std::function<Value(std::istringstream &, char)>>
+static std::map<char,
+                std::function<Value(std::istringstream &, char, Environment *)>>
     reader_macros{};
 
 void init_syntax_types() {
@@ -80,7 +81,7 @@ void init_syntax_types() {
 }
 
 void init_reader_macros() {
-  reader_macros['('] = [](std::istringstream &input, char _) {
+  reader_macros['('] = [](std::istringstream &input, char _, Environment *env) {
     Value result = NIL;
     Cons *current_cons;
 
@@ -92,13 +93,13 @@ void init_reader_macros() {
         break;
       } else if (input.peek() == '.') {
         input.get();
-        current_cons->set_cdr(read(input));
+        current_cons->set_cdr(read(input, env));
         skip_whitespace(input);
         assert(input.get() == ')');
         break;
       }
 
-      Value next = read(input);
+      Value next = read(input, env);
 
       if (is_nil(result)) {
         current_cons = make_cons(next, NIL);
@@ -225,8 +226,9 @@ bool parse_number(std::string_view token, Value &value) {
   return parse_integer(token, value);
 }
 
-bool parse_symbol(std::string_view token, Value &value) {
-  value = PKG_CURRENT->intern(token, false);
+bool parse_symbol(std::string_view token, Value &value, Environment *env) {
+  value = get_package(env->lookup_special(SYM_STAR_PACKAGE_STAR))
+              ->intern(token, false);
 
   return true;
 }
@@ -239,7 +241,7 @@ Value parse_token(std::string_view token) {
   return value;
 }
 
-Value read(std::istringstream &input) {
+Value read(std::istringstream &input, Environment *env) {
   skip_whitespace(input);
 
   if (input.eof()) {
@@ -255,7 +257,7 @@ Value read(std::istringstream &input) {
   }
 
   if (is_macro(x)) {
-    return reader_macros[x](input, x);
+    return reader_macros[x](input, x, env);
   }
 
   if (is_single_escape(x)) {
@@ -271,7 +273,7 @@ Value read(std::istringstream &input) {
     token = read_token(input, {x});
   }
 
-  return parse_token(token);
+  return parse_token(token, env);
 }
 
 } // namespace lisp

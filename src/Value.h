@@ -37,4 +37,6 @@ void trace_value(Value value, bool marking);
 
 std::ostream &operator<<(std::ostream &os, const Value &value);
 
+bool operator==(Value lhs, Value rhs);
+
 } // namespace lisp

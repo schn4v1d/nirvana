@@ -22,6 +22,8 @@ Object *get_object(Value value) {
 void trace_value(Value value, bool marking) {
   if (is_object(value)) {
     Object *obj = get_object(value);
+    if (obj->get_marked() == marking)
+      return;
     obj->trace(marking);
   }
 }
@@ -41,6 +43,21 @@ std::ostream &operator<<(std::ostream &os, const Value &value) {
     return get_object(value)->print(os);
   } else {
     return os;
+  }
+}
+
+bool operator==(Value lhs, Value rhs) {
+  uint64_t lhs_tag = lhs.tag & TAG_MASK;
+  uint64_t rhs_tag = rhs.tag & TAG_MASK;
+  switch (lhs_tag) {
+  case TAG_NIL:
+    return rhs_tag == TAG_NIL;
+  case TAG_INTEGER:
+    return rhs_tag == TAG_INTEGER && get_integer(lhs) == get_integer(rhs);
+  case TAG_OBJECT:
+    return rhs_tag == TAG_OBJECT && get_object(lhs) == get_object(rhs);
+  default:
+    return false;
   }
 }
 

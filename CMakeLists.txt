@@ -18,4 +18,12 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/Package.h
         src/reader.h
         src/reader.cpp
+        src/cl_fun.h
+        src/cl_fun.cpp
+        src/eval.h
+        src/eval.cpp
+        src/Environment.cpp
+        src/Environment.h
+        src/Binding.cpp
+        src/Binding.h
 )

@@ -8,9 +8,6 @@ Symbol::Symbol(std::string_view name, Value package)
     : Object{OBJ_SYMBOL}, name{name}, package{package} {}
 
 void Symbol::trace(bool marking) {
-  if (get_marked() == marking)
-    return;
-
   mark(marking);
 
   trace_value(package, marking);
@@ -57,6 +54,32 @@ Value make_symbol_v(std::string_view name, Value package) {
 
 Value SYM_NIL;
 Value SYM_T;
+Value SYM_BLOCK;
+Value SYM_CATCH;
+Value SYM_EVAL_WHEN;
+Value SYM_FLET;
+Value SYM_FUNCTION;
+Value SYM_GO;
+Value SYM_IF;
+Value SYM_LABELS;
+Value SYM_LET;
+Value SYM_LET_STAR;
+Value SYM_LOAD_TIME_VALUE;
+Value SYM_LOCALLY;
+Value SYM_MACROLET;
+Value SYM_MULTIPLE_VALUE_CALL;
+Value SYM_MULTIPLE_VALUE_PROG1;
+Value SYM_PROGN;
+Value SYM_PROGV;
+Value SYM_QUOTE;
+Value SYM_RETURN_FROM;
+Value SYM_SETQ;
+Value SYM_SYMBOL_MACROLET;
+Value SYM_TAGBODY;
+Value SYM_THE;
+Value SYM_THROW;
+Value SYM_UNWIND_PROTECT;
+Value SYM_STAR_PACKAGE_STAR;
 
 void init_symbols() {
   SYM_NIL = PKG_CL->add_external_symbol("NIL");
@@ -65,6 +88,34 @@ void init_symbols() {
   SYM_T = PKG_CL->add_external_symbol("T");
   get_symbol(SYM_T)->set_value(SYM_T);
   T = SYM_T;
+
+  SYM_BLOCK = PKG_CL->add_external_symbol("BLOCK");
+  SYM_CATCH = PKG_CL->add_external_symbol("CATCH");
+  SYM_EVAL_WHEN = PKG_CL->add_external_symbol("EVAL-WHEN");
+  SYM_FLET = PKG_CL->add_external_symbol("FLET");
+  SYM_FUNCTION = PKG_CL->add_external_symbol("FUNCTION");
+  SYM_GO = PKG_CL->add_external_symbol("GO");
+  SYM_IF = PKG_CL->add_external_symbol("IF");
+  SYM_LABELS = PKG_CL->add_external_symbol("LABELS");
+  SYM_LET = PKG_CL->add_external_symbol("LET");
+  SYM_LET_STAR = PKG_CL->add_external_symbol("LET*");
+  SYM_LOAD_TIME_VALUE = PKG_CL->add_external_symbol("LOAD-TIME-VALUE");
+  SYM_LOCALLY = PKG_CL->add_external_symbol("LOCALLY");
+  SYM_MACROLET = PKG_CL->add_external_symbol("MACROLET");
+  SYM_MULTIPLE_VALUE_CALL = PKG_CL->add_external_symbol("MULTIPLE_VALUE_CALL");
+  SYM_MULTIPLE_VALUE_PROG1 =
+      PKG_CL->add_external_symbol("MULTIPLE_VALUE_PROG1");
+  SYM_PROGN = PKG_CL->add_external_symbol("PROGN");
+  SYM_PROGV = PKG_CL->add_external_symbol("PROGV");
+  SYM_QUOTE = PKG_CL->add_external_symbol("QUOTE");
+  SYM_RETURN_FROM = PKG_CL->add_external_symbol("RETURN-FROM");
+  SYM_SETQ = PKG_CL->add_external_symbol("SETQ");
+  SYM_SYMBOL_MACROLET = PKG_CL->add_external_symbol("SYMBOL_MACROLET");
+  SYM_TAGBODY = PKG_CL->add_external_symbol("TAGBODY");
+  SYM_THE = PKG_CL->add_external_symbol("THE");
+  SYM_THROW = PKG_CL->add_external_symbol("THROW");
+  SYM_UNWIND_PROTECT = PKG_CL->add_external_symbol("UNWIND-PROTECT");
+  SYM_STAR_PACKAGE_STAR = PKG_CL->add_external_symbol("*PACKAGE*");
 }
 
 } // namespace lisp
