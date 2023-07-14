@@ -3,6 +3,8 @@
 
 namespace lisp {
 
+Value::operator bool() const { return !is_nil(*this); }
+
 Value make_value(std::int32_t integer) {
   Value v{};
   v.integer[1] = integer;
@@ -30,13 +32,15 @@ void trace_value(Value value, bool marking) {
 
 bool is_nil(Value value) { return (value.tag & TAG_MASK) == TAG_NIL; }
 
+bool is_unbound(Value value) { return (value.tag & TAG_MASK) == TAG_UNBOUND; }
+
 bool is_integer(Value value) { return (value.tag & TAG_MASK) == TAG_INTEGER; }
 
 std::int32_t get_integer(Value value) { return value.integer[1]; }
 
 std::ostream &operator<<(std::ostream &os, const Value &value) {
   if (is_nil(value)) {
-    return os << "nil";
+    return os << "NIL";
   } else if (is_integer(value)) {
     return os << get_integer(value);
   } else if (is_object(value)) {

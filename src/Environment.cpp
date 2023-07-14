@@ -7,48 +7,39 @@
 
 namespace lisp {
 
-Environment::Environment() : Environment{nullptr} {}
+DynamicBindings *dynamic_bindings;
+
+Environment::Environment() : Environment{nullptr} {
+  dynamic_bindings = make_dynamic_bindings();
+}
 
 Environment::Environment(Environment *parent) : Object{OBJ_ENVIRONMENT} {
   if (parent) {
-    variables = parent->variables;
-    functions = parent->functions;
+    lexical_variables = parent->lexical_variables;
   }
 }
 
 void Environment::trace(bool marking) {
   mark(marking);
-  trace_value(variables, marking);
-  trace_value(functions, marking);
-}
-
-Value lookup_value(Value name, Value bindings) {
-  return iter_list(
-      [name](Value bindingv) -> std::optional<Value> {
-        Binding *binding = get_binding(bindingv);
-        if (binding->get_name() == name) {
-          return std::optional{binding->get_value()};
-        } else {
-          return std::nullopt;
-        }
-      },
-      bindings);
+  trace_value(lexical_variables, marking);
+  trace_value(dynamic_bindings->make_value(), marking);
 }
 
 Value Environment::lookup_variable(Value name) {
-  return lookup_value(name, variables);
-}
-
-Value Environment::lookup_function(Value name) {
-  return lookup_value(name, functions);
+  return lookup_value(name, lexical_variables);
 }
 
 Value Environment::lookup_special(Value name) {
-  return lookup_value(name, specials);
+  return dynamic_bindings->lookup(name);
 }
 
-void Environment::bind(Value name, Value value, bool special) {
-  variables = make_cons_v(make_binding_v(name, value, special), variables);
+void Environment::bind_lexical_variable(Value name, Value value, bool special) {
+  lexical_variables =
+      make_cons_v(make_binding_v(name, value, special), lexical_variables);
+}
+
+bool Environment::is_lexical_special(Value name) {
+  return lookup_binding(name, lexical_variables)->is_special();
 }
 
 bool is_environment(Value value) {

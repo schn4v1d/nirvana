@@ -25,4 +25,7 @@ Binding *get_binding(Value value);
 Binding *make_binding(Value name, Value value, bool special);
 Value make_binding_v(Value name, Value value, bool special);
 
+Binding *lookup_binding(Value name, Value bindings);
+Value lookup_value(Value name, Value bindings);
+
 } // namespace lisp

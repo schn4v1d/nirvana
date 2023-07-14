@@ -1,12 +1,12 @@
 #include "reader.h"
 #include "Cons.h"
 #include "Package.h"
+#include "eval.h"
 #include "util.h"
 
 #include <array>
 #include <cassert>
 #include <functional>
-#include <iostream>
 
 namespace lisp {
 
@@ -113,6 +113,13 @@ void init_reader_macros() {
 
     return result;
   };
+
+  reader_macros['\''] = [](std::istringstream &input, char _,
+                           Environment *env) {
+    Value quote = read(input, env);
+
+    return make_cons_v(SYM_QUOTE, make_cons_v(quote, NIL));
+  };
 }
 
 void init_reader() {
@@ -151,7 +158,7 @@ bool is_multiple_escape(char x) {
 }
 
 void skip_whitespace(std::istringstream &input) {
-  while (is_whitespace(input.peek())) {
+  while (is_whitespace((char)input.peek())) {
     input.get();
   }
 }
@@ -227,16 +234,15 @@ bool parse_number(std::string_view token, Value &value) {
 }
 
 bool parse_symbol(std::string_view token, Value &value, Environment *env) {
-  value = get_package(env->lookup_special(SYM_STAR_PACKAGE_STAR))
-              ->intern(token, false);
+  value = get_package(eval(SYM_STAR_PACKAGE_STAR, env))->intern(token, false);
 
   return true;
 }
 
-Value parse_token(std::string_view token) {
+Value parse_token(std::string_view token, Environment *env) {
   Value value{};
 
-  parse_number(token, value) || parse_symbol(token, value);
+  parse_number(token, value) || parse_symbol(token, value, env);
 
   return value;
 }

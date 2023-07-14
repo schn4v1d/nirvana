@@ -12,8 +12,9 @@ int main() {
     init_packages();
     init_symbols();
     init_reader();
+    init_eval();
 
-    std::istringstream input_stream{"(1 2 3 . nil)"};
+    std::istringstream input_stream{"'(1 2 3)"};
 
     Environment *environment = make_environment();
 

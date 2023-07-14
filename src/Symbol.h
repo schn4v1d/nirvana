@@ -5,22 +5,23 @@
 
 namespace lisp {
 
-struct SymbolFlags {
-  bool bound : 1;
-};
-
 class Symbol : public Object {
-  SymbolFlags flags;
   std::string name;
   Value package;
-  Value value;
+  Value value{UNBOUND};
+  bool specialp{false};
+  bool constantp{false};
 
 public:
   Symbol(std::string_view name, Value package);
 
   Value get_value();
   void set_value(Value new_value);
-  bool is_bound() const;
+  void set_constant(Value initial_value);
+  [[nodiscard]] bool is_special() const;
+  [[nodiscard]] bool is_constant() const;
+  [[nodiscard]] bool is_bound() const;
+  void declare_special();
 
   void trace(bool marking) override;
 

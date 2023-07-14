@@ -1,5 +1,7 @@
 #include "Binding.h"
+#include "Cons.h"
 #include "GarbageCollector.h"
+#include <optional>
 
 namespace lisp {
 
@@ -36,6 +38,34 @@ Binding *make_binding(Value name, Value value, bool special) {
 
 Value make_binding_v(Value name, Value value, bool special) {
   return make_binding(name, value, special)->make_value();
+}
+
+Binding *lookup_binding(Value name, Value bindings) {
+  Value result = iter_list(
+      [name](Value bindingv) -> std::optional<Value> {
+        Binding *binding = get_binding(bindingv);
+        if (binding->get_name() == name) {
+          return std::optional{bindingv};
+        } else {
+          return std::nullopt;
+        }
+      },
+      bindings);
+
+  if (is_unbound(result)) {
+    return nullptr;
+  } else {
+    return get_binding(result);
+  }
+}
+
+Value lookup_value(Value name, Value bindings) {
+  Binding *binding = lookup_binding(name, bindings);
+  if (binding) {
+    return binding->get_value();
+  } else {
+    return UNBOUND;
+  }
 }
 
 } // namespace lisp

@@ -26,4 +26,6 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/Environment.h
         src/Binding.cpp
         src/Binding.h
+        src/DynamicBindings.cpp
+        src/DynamicBindings.h
 )

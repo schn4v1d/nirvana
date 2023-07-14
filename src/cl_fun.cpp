@@ -31,4 +31,35 @@ Value cadr(Value list) { return car(cdr(list)); }
 Value cdar(Value list) { return cdr(car(list)); }
 Value cddr(Value list) { return cdr(cdr(list)); }
 
+Value caaar(Value list) { return car(car(car(list))); }
+Value caadr(Value list) { return car(car(cdr(list))); }
+Value cadar(Value list) { return car(cdr(car(list))); }
+Value caddr(Value list) { return car(cdr(cdr(list))); }
+Value cdaar(Value list) { return cdr(car(car(list))); }
+Value cdadr(Value list) { return cdr(car(cdr(list))); }
+Value cddar(Value list) { return cdr(cdr(car(list))); }
+Value cdddr(Value list) { return cdr(cdr(cdr(list))); }
+
+Value caaaar(Value list) { return car(car(car(car(list)))); }
+Value caaadr(Value list) { return car(car(car(cdr(list)))); }
+Value caadar(Value list) { return car(car(cdr(car(list)))); }
+Value caaddr(Value list) { return car(car(cdr(cdr(list)))); }
+Value cadaar(Value list) { return car(cdr(car(car(list)))); }
+Value cadadr(Value list) { return car(cdr(car(cdr(list)))); }
+Value caddar(Value list) { return car(cdr(cdr(car(list)))); }
+Value cadddr(Value list) { return car(cdr(cdr(cdr(list)))); }
+Value cdaaar(Value list) { return cdr(car(car(car(list)))); }
+Value cdaadr(Value list) { return cdr(car(car(cdr(list)))); }
+Value cdadar(Value list) { return cdr(car(cdr(car(list)))); }
+Value cdaddr(Value list) { return cdr(car(cdr(cdr(list)))); }
+Value cddaar(Value list) { return cdr(cdr(car(car(list)))); }
+Value cddadr(Value list) { return cdr(cdr(car(cdr(list)))); }
+Value cdddar(Value list) { return cdr(cdr(cdr(car(list)))); }
+Value cddddr(Value list) { return cdr(cdr(cdr(cdr(list)))); }
+
+Value first(Value list) { return car(list); }
+Value second(Value list) { return cadr(list); }
+Value third(Value list) { return caddr(list); }
+Value fourth(Value list) { return cadddr(list); }
+
 } // namespace lisp::cl

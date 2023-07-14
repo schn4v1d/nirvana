@@ -72,7 +72,7 @@ Value iter_list(const std::function<std::optional<Value>(Value)>& func, Value li
     }
   }
 
-  return NIL;
+  return UNBOUND;
 }
 
 } // namespace lisp

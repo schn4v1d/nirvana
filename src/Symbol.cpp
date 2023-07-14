@@ -1,6 +1,7 @@
 #include "Symbol.h"
 #include "GarbageCollector.h"
 #include "Package.h"
+#include <cassert>
 
 namespace lisp {
 
@@ -16,13 +17,24 @@ void Symbol::trace(bool marking) {
 Value Symbol::get_value() { return value; }
 
 void Symbol::set_value(Value new_value) {
+  assert(!constantp);
   value = new_value;
-  flags.bound = true;
 }
 
-bool Symbol::is_bound() const { return flags.bound; }
+bool Symbol::is_special() const { return specialp; }
+
+bool Symbol::is_constant() const { return constantp; }
+
+void Symbol::set_constant(Value initial_value) {
+  value = initial_value;
+  constantp = true;
+}
 
 std::ostream &Symbol::print(std::ostream &os) { return os << name; }
+
+bool Symbol::is_bound() const { return !is_unbound(value); }
+
+void Symbol::declare_special() { specialp = true; }
 
 bool is_symbol(Value value) {
   if (is_nil(value)) {
@@ -83,10 +95,10 @@ Value SYM_STAR_PACKAGE_STAR;
 
 void init_symbols() {
   SYM_NIL = PKG_CL->add_external_symbol("NIL");
-  get_symbol(SYM_NIL)->set_value(NIL);
+  get_symbol(SYM_NIL)->set_constant(NIL);
 
   SYM_T = PKG_CL->add_external_symbol("T");
-  get_symbol(SYM_T)->set_value(SYM_T);
+  get_symbol(SYM_T)->set_constant(SYM_T);
   T = SYM_T;
 
   SYM_BLOCK = PKG_CL->add_external_symbol("BLOCK");
