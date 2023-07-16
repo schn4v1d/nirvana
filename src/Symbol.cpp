@@ -14,6 +14,8 @@ void Symbol::trace(bool marking) {
   trace_value(package, marking);
 }
 
+const std::string &Symbol::get_name() const { return name; }
+
 Value Symbol::get_value() { return value; }
 
 void Symbol::set_value(Value new_value) {
@@ -21,18 +23,24 @@ void Symbol::set_value(Value new_value) {
   value = new_value;
 }
 
-bool Symbol::is_special() const { return specialp; }
-
-bool Symbol::is_constant() const { return constantp; }
-
 void Symbol::set_constant(Value initial_value) {
   value = initial_value;
   constantp = true;
 }
 
+Value Symbol::get_function() { return function; }
+
+void Symbol::set_function(Value new_function) { function = new_function; }
+
+bool Symbol::is_special() const { return specialp; }
+
+bool Symbol::is_constant() const { return constantp; }
+
 std::ostream &Symbol::print(std::ostream &os) { return os << name; }
 
 bool Symbol::is_bound() const { return !is_unbound(value); }
+
+bool Symbol::is_fbound() const { return !is_unbound(function); }
 
 void Symbol::declare_special() { specialp = true; }
 
@@ -92,6 +100,9 @@ Value SYM_THE;
 Value SYM_THROW;
 Value SYM_UNWIND_PROTECT;
 Value SYM_STAR_PACKAGE_STAR;
+Value SYM_DEFUN;
+Value SYM_DEFPARAMETER;
+Value SYM_DEFVAR;
 
 void init_symbols() {
   SYM_NIL = PKG_CL->add_external_symbol("NIL");
@@ -128,6 +139,9 @@ void init_symbols() {
   SYM_THROW = PKG_CL->add_external_symbol("THROW");
   SYM_UNWIND_PROTECT = PKG_CL->add_external_symbol("UNWIND-PROTECT");
   SYM_STAR_PACKAGE_STAR = PKG_CL->add_external_symbol("*PACKAGE*");
+  SYM_DEFUN = PKG_CL->add_external_symbol("DEFUN");
+  SYM_DEFPARAMETER = PKG_CL->add_external_symbol("DEFPARAMETER");
+  SYM_DEFVAR = PKG_CL->add_external_symbol("DEFVAR");
 }
 
 } // namespace lisp

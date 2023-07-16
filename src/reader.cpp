@@ -158,7 +158,7 @@ bool is_multiple_escape(char x) {
 }
 
 void skip_whitespace(std::istringstream &input) {
-  while (is_whitespace((char)input.peek())) {
+  while (!input.eof() && input.peek() != -1 && is_whitespace((char)input.peek())) {
     input.get();
   }
 }
@@ -251,7 +251,7 @@ Value read(std::istringstream &input, Environment *env) {
   skip_whitespace(input);
 
   if (input.eof()) {
-    assert(false);
+    throw ReadEndOfFile{};
   }
 
   char x = (char)input.get();

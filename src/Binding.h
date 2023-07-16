@@ -14,6 +14,7 @@ public:
 
   [[nodiscard]] Value get_name() const;
   [[nodiscard]] Value get_value() const;
+  void set_value(Value new_value);
   [[nodiscard]] bool is_special() const;
 
   void trace(bool marking) override;

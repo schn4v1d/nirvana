@@ -12,6 +12,8 @@ Value Binding::get_name() const { return name; }
 
 Value Binding::get_value() const { return value; }
 
+void Binding::set_value(Value new_value) { value = new_value; }
+
 bool Binding::is_special() const { return special; }
 
 void Binding::trace(bool marking) {

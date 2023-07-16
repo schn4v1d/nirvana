@@ -22,6 +22,8 @@ public:
 
   void trace(bool marking) override;
 
+  std::ostream &print(std::ostream &os) override;
+
   Value add_external_symbol(std::string_view symbol_name);
 
   Value intern(std::string_view symbol_name, bool external);
@@ -37,6 +39,8 @@ Package *get_package(Value value);
 
 extern Package *PKG_CL;
 extern Package *PKG_CL_USER;
+
+Value find_package(Value name);
 
 void init_packages();
 

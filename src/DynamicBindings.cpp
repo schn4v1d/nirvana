@@ -25,8 +25,12 @@ void DynamicBindings::restore_checkpoint(Value checkpoint) {
   }
 }
 
-Value DynamicBindings::lookup(Value name) {
-  return lookup_value(name, bindings);
+Value DynamicBindings::lookup_value(Value name) {
+  return lisp::lookup_value(name, bindings);
+}
+
+Binding *DynamicBindings::lookup_binding(Value name) {
+  return lisp::lookup_binding(name, bindings);
 }
 
 bool is_dynamic_bindings(Value value) {

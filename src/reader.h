@@ -18,6 +18,8 @@ enum class syntax_type {
   whitespace,
 };
 
+class ReadEndOfFile : public std::exception {};
+
 Value read(std::istringstream &input, Environment *env);
 
 void skip_whitespace(std::istringstream &input);

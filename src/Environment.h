@@ -18,6 +18,7 @@ public:
   Value lookup_special(Value name);
   void bind_lexical_variable(Value name, Value value, bool special = false);
   bool is_lexical_special(Value name);
+  void assign_variable(Value name, Value value);
 };
 
 bool is_environment(Value value);

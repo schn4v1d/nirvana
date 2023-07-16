@@ -1,8 +1,11 @@
+#include "BuiltinFunction.h"
 #include "Cons.h"
 #include "GarbageCollector.h"
 #include "Package.h"
 #include "eval.h"
 #include "reader.h"
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
 using namespace lisp;
@@ -13,17 +16,26 @@ int main() {
     init_symbols();
     init_reader();
     init_eval();
+    init_builtin_functions();
 
-    std::istringstream input_stream{"'(1 2 3)"};
+    std::ifstream t{"cl/test.lisp"};
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    std::istringstream input_stream{buffer.str()};
 
     Environment *environment = make_environment();
 
-    Value v = read(input_stream, environment);
+    try {
+      while (true) {
+        Value v = read(input_stream, environment);
 
-    Value result = eval(v, environment);
+        Value result = eval(v, environment);
 
-    std::cout << "> " << v << std::endl;
-    std::cout << result << std::endl;
+        std::cout << "> " << v << std::endl;
+        std::cout << result << std::endl;
+      }
+    } catch (ReadEndOfFile &e) {
+    }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
   }

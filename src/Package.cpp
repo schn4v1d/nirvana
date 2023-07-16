@@ -1,10 +1,15 @@
 #include "Package.h"
 #include "GarbageCollector.h"
 #include <cassert>
+#include <unordered_map>
 
 namespace lisp {
 
-Package::Package(std::string_view name) : Object{OBJ_PACKAGE}, name{name} {}
+std::unordered_map<std::string, Package *> packages{};
+
+Package::Package(std::string_view name) : Object{OBJ_PACKAGE}, name{name} {
+  packages.insert(std::make_pair(name, this));
+}
 
 void Package::trace(bool marking) {
   mark(marking);
@@ -87,6 +92,10 @@ void Package::use_package(Package *package) {
   used_packages.push_back(package);
 }
 
+std::ostream &Package::print(std::ostream &os) {
+  return os << "#<PACKAGE " << name << '>';
+}
+
 Package *make_package(std::string_view name) {
   return make_object<Package>(name);
 }
@@ -105,6 +114,22 @@ bool is_package(Value value) {
 
 Package *get_package(Value value) {
   return reinterpret_cast<Package *>(get_object(value));
+}
+
+Value find_package(Value name) {
+  std::string name_string;
+
+  if (is_symbol(name)) {
+    name_string = get_symbol(name)->get_name();
+  }
+
+  auto it = packages.find(name_string);
+
+  if (it != packages.end()) {
+    return (*it).second->make_value();
+  } else {
+    return NIL;
+  }
 }
 
 Package *PKG_CL;

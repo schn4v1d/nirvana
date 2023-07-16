@@ -18,5 +18,5 @@ template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 class NotImplemented : public std::logic_error {
 public:
-  NotImplemented();;
+  NotImplemented();
 };

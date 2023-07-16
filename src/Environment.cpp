@@ -30,7 +30,7 @@ Value Environment::lookup_variable(Value name) {
 }
 
 Value Environment::lookup_special(Value name) {
-  return dynamic_bindings->lookup(name);
+  return dynamic_bindings->lookup_value(name);
 }
 
 void Environment::bind_lexical_variable(Value name, Value value, bool special) {
@@ -40,6 +40,23 @@ void Environment::bind_lexical_variable(Value name, Value value, bool special) {
 
 bool Environment::is_lexical_special(Value name) {
   return lookup_binding(name, lexical_variables)->is_special();
+}
+
+void Environment::assign_variable(Value name, Value value) {
+  Symbol *symbol = get_symbol(name);
+
+  if (symbol->is_special()) {
+    symbol->set_value(value);
+  } else if (is_lexical_special(name)) {
+    dynamic_bindings->lookup_binding(name)->set_value(value);
+  } else {
+    Binding *binding = lookup_binding(name, lexical_variables);
+    if (binding) {
+      binding->set_value(value);
+    } else {
+      symbol->set_value(value);
+    }
+  }
 }
 
 bool is_environment(Value value) {

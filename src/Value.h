@@ -8,7 +8,6 @@ namespace lisp {
 union Value {
   std::uint64_t tag;
   std::int32_t integer[2];
-  class Cons *cons;
   class Object *object;
 
   explicit operator bool() const;

@@ -13,6 +13,7 @@ const obj_tag OBJ_PACKAGE = 2;
 const obj_tag OBJ_ENVIRONMENT = 3;
 const obj_tag OBJ_BINDING = 4;
 const obj_tag OBJ_DYNAMIC_BINDINGS = 5;
+const obj_tag OBJ_BUILTIN_FUNCTION = 6;
 
 class Object {
   friend class GarbageCollector;

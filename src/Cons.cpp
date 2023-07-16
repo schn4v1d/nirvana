@@ -1,5 +1,7 @@
 #include "Cons.h"
 #include "GarbageCollector.h"
+#include "Symbol.h"
+#include "cl_fun.h"
 
 namespace lisp {
 
@@ -21,6 +23,10 @@ void Cons::trace(bool marking) {
 }
 
 std::ostream &Cons::print(std::ostream &os) {
+  if (car == SYM_QUOTE && is_cons(cdr) && is_nil(cl::cdr(cdr))) {
+    return os << '\'' << cl::car(cdr);
+  }
+
   os << '(' << car;
 
   Value current = cdr;
@@ -57,7 +63,8 @@ Value make_cons_v(Value car, Value cdr) {
   return make_cons(car, cdr)->make_value();
 }
 
-Value iter_list(const std::function<std::optional<Value>(Value)>& func, Value list) {
+Value iter_list(const std::function<std::optional<Value>(Value)> &func,
+                Value list) {
   Value current = list;
 
   while (is_cons(current)) {
@@ -73,6 +80,30 @@ Value iter_list(const std::function<std::optional<Value>(Value)>& func, Value li
   }
 
   return UNBOUND;
+}
+Value map_list(const std::function<Value(Value)> &func, Value list) {
+  Value current = list;
+  Value result = NIL;
+  Value result_current = NIL;
+
+  while (is_cons(current)) {
+    Cons *current_cons = get_cons(current);
+
+    Value value = func(current_cons->get_car());
+
+    if (is_nil(result)) {
+      result = make_cons_v(value, NIL);
+      result_current = result;
+    } else {
+      Cons *next = make_cons(value, NIL);
+      get_cons(result_current)->set_cdr(next->make_value());
+      result_current = next->make_value();
+    }
+
+    current = current_cons->get_cdr();
+  }
+
+  return result;
 }
 
 } // namespace lisp

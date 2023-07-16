@@ -1,5 +1,6 @@
 #include "eval.h"
 #include "Cons.h"
+#include "Function.h"
 #include "Package.h"
 #include "Symbol.h"
 #include "cl_fun.h"
@@ -16,6 +17,15 @@ void init_eval() {
   Symbol *current_package = get_symbol(SYM_STAR_PACKAGE_STAR);
   current_package->declare_special();
   current_package->set_value(PKG_CL_USER->make_value());
+
+  special_forms.insert(
+      std::make_pair(get_symbol(SYM_DEFUN), [](Value args, Environment *env) {
+        Value name = cl::first(args);
+
+        assert(false);
+
+        return name;
+      }));
 
   special_forms.insert(
       std::make_pair(get_symbol(SYM_IF), [](Value args, Environment *env) {
@@ -102,6 +112,27 @@ void init_eval() {
       std::make_pair(get_symbol(SYM_QUOTE), [](Value args, Environment *env) {
         return cl::car(args);
       }));
+
+  special_forms.insert(
+      std::make_pair(get_symbol(SYM_SETQ), [](Value args, Environment *env) {
+        Value value{};
+
+        while (!is_nil(args)) {
+          Value name = cl::car(args);
+          args = cl::cdr(args);
+
+          if (is_nil(args)) {
+            assert(false);
+          }
+
+          value = eval(cl::car(args), env);
+          args = cl::cdr(args);
+
+          env->assign_variable(name, value);
+        }
+
+        return value;
+      }));
 }
 
 Value eval(Value value, Environment *env) {
@@ -118,7 +149,17 @@ Value eval(Value value, Environment *env) {
         return (*special_form).second(cons->get_cdr(), env);
       }
 
-      throw NotImplemented{};
+      // TODO lexical
+
+      if (name->is_fbound()) {
+        Value function = name->get_function();
+
+        return call_function(
+            function, map_list([&env](Value arg) { return eval(arg, env); },
+                               cons->get_cdr()));
+      }
+
+      assert(false);
     } else {
       throw NotImplemented{};
     }

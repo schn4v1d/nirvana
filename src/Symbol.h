@@ -9,18 +9,23 @@ class Symbol : public Object {
   std::string name;
   Value package;
   Value value{UNBOUND};
+  Value function{UNBOUND};
   bool specialp{false};
   bool constantp{false};
 
 public:
   Symbol(std::string_view name, Value package);
 
+  [[nodiscard]] const std::string &get_name() const;
   Value get_value();
   void set_value(Value new_value);
   void set_constant(Value initial_value);
+  Value get_function();
+  void set_function(Value new_function);
   [[nodiscard]] bool is_special() const;
   [[nodiscard]] bool is_constant() const;
   [[nodiscard]] bool is_bound() const;
+  [[nodiscard]] bool is_fbound() const;
   void declare_special();
 
   void trace(bool marking) override;
@@ -62,6 +67,9 @@ extern Value SYM_THE;
 extern Value SYM_THROW;
 extern Value SYM_UNWIND_PROTECT;
 extern Value SYM_STAR_PACKAGE_STAR;
+extern Value SYM_DEFUN;
+extern Value SYM_DEFPARAMETER;
+extern Value SYM_DEFVAR;
 
 void init_symbols();
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Binding.h"
 #include "Object.h"
 
 namespace lisp {
@@ -13,7 +14,8 @@ public:
   void trace(bool marking) override;
 
   Value checkpoint();
-  Value lookup(Value name);
+  Value lookup_value(Value name);
+  Binding *lookup_binding(Value name);
   void push_binding(Value name, Value value);
   void restore_checkpoint(Value checkpoint);
 };

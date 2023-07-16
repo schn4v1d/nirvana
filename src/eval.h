@@ -7,6 +7,6 @@ namespace lisp {
 
 void init_eval();
 
-Value eval(Value value, Environment *env);
+Value eval(Value arg, Environment *env);
 
 }
