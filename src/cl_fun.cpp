@@ -1,5 +1,7 @@
 #include "cl_fun.h"
 #include "Cons.h"
+#include "String.h"
+#include "Symbol.h"
 #include <cassert>
 
 namespace lisp::cl {
@@ -61,5 +63,17 @@ Value first(Value list) { return car(list); }
 Value second(Value list) { return cadr(list); }
 Value third(Value list) { return caddr(list); }
 Value fourth(Value list) { return cadddr(list); }
+
+Value string(Value arg) {
+  if (is_string(arg)) {
+    return arg;
+  } else if (is_symbol(arg)) {
+    return make_string_v(get_symbol(arg)->get_name());
+//  } else if (is_character(arg)) {
+//    return TODO
+  } else {
+    throw std::exception{"type error"};
+  }
+}
 
 } // namespace lisp::cl

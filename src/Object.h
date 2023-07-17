@@ -14,6 +14,8 @@ const obj_tag OBJ_ENVIRONMENT = 3;
 const obj_tag OBJ_BINDING = 4;
 const obj_tag OBJ_DYNAMIC_BINDINGS = 5;
 const obj_tag OBJ_BUILTIN_FUNCTION = 6;
+const obj_tag OBJ_LAMBDA = 7;
+const obj_tag OBJ_STRING = 8;
 
 class Object {
   friend class GarbageCollector;

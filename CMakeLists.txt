@@ -37,4 +37,8 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/errors.cpp
         src/OrdinaryLambdaList.cpp
         src/OrdinaryLambdaList.h
+        src/Lambda.cpp
+        src/Lambda.h
+        src/String.cpp
+        src/String.h
 )

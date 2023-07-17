@@ -16,6 +16,7 @@ class Symbol : public Object {
 public:
   Symbol(std::string_view name, Value package);
 
+  Value get_package();
   [[nodiscard]] const std::string &get_name() const;
   Value get_value();
   void set_value(Value new_value);

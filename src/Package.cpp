@@ -1,6 +1,10 @@
 #include "Package.h"
 #include "GarbageCollector.h"
+#include "String.h"
+#include "cl_fun.h"
+#include "util.h"
 #include <cassert>
+#include <sstream>
 #include <unordered_map>
 
 namespace lisp {
@@ -96,6 +100,19 @@ std::ostream &Package::print(std::ostream &os) {
   return os << "#<PACKAGE " << name << '>';
 }
 
+void Package::export_symbol(Symbol *symbol) {
+  if (symbol->get_package() == make_value()) {
+    if (get_external_symbol(symbol->get_name()) == symbol) {
+      return;
+    }
+    internal_symbols.erase(symbol->get_name());
+    external_symbols.insert(std::make_pair(symbol->get_name(), symbol));
+    return;
+  }
+
+  throw NotImplemented{};
+}
+
 Package *make_package(std::string_view name) {
   return make_object<Package>(name);
 }
@@ -116,20 +133,33 @@ Package *get_package(Value value) {
   return reinterpret_cast<Package *>(get_object(value));
 }
 
-Value find_package(Value name) {
-  std::string name_string;
-
-  if (is_symbol(name)) {
-    name_string = get_symbol(name)->get_name();
+Value find_package(Value arg) {
+  if (is_package(arg)) {
+    return arg;
   }
 
-  auto it = packages.find(name_string);
+  String *name = get_string(cl::string(arg));
+
+  auto it = packages.find(name->get_content());
 
   if (it != packages.end()) {
     return (*it).second->make_value();
   } else {
     return NIL;
   }
+}
+
+Package *coerce_to_package(Value value) {
+  Value package = find_package(value);
+
+  if (is_nil(package)) {
+    std::ostringstream oss{};
+    oss << value << " is not the name of a package";
+    std::string err{oss.str()};
+    throw std::exception{err.c_str()};
+  }
+
+  return get_package(package);
 }
 
 Package *PKG_CL;

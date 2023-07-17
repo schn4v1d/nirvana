@@ -1,6 +1,7 @@
 #include "eval.h"
 #include "Cons.h"
 #include "Function.h"
+#include "Lambda.h"
 #include "OrdinaryLambdaList.h"
 #include "Package.h"
 #include "Symbol.h"
@@ -23,12 +24,21 @@ void init_eval() {
 
   special_forms.insert(
       std::make_pair(get_symbol(SYM_DEFUN), [](Value args, Environment *env) {
-        Value name = cl::first(args);
+        Value namev = cl::first(args);
         Value lambda_list = cl::second(args);
+        Value body = cl::cddr(args);
+
+        if (!is_symbol(namev)) {
+          throw std::exception("defun needs symbol name");
+        }
+
+        Symbol *name = get_symbol(namev);
 
         OrdinaryLambdaList oll{lambda_list};
 
-        return name;
+        name->set_function(make_lambda_v(std::move(oll), env, body));
+
+        return namev;
       }));
 
   special_forms.insert(

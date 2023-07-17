@@ -43,4 +43,6 @@ Value second(Value list);
 Value third(Value list);
 Value fourth(Value list);
 
+Value string(Value arg);
+
 } // namespace lisp::cl

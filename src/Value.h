@@ -11,6 +11,8 @@ union Value {
   class Object *object;
 
   explicit operator bool() const;
+
+  bool operator<(const Value& other) const;
 };
 
 const std::uint64_t TAG_MASK = 0b11;

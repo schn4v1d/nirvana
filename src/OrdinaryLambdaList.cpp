@@ -1,6 +1,8 @@
 #include "OrdinaryLambdaList.h"
 #include "Cons.h"
 #include "util.h"
+#include <set>
+#include <sstream>
 
 namespace lisp {
 
@@ -19,6 +21,18 @@ OrdinaryLambdaList::OrdinaryLambdaList(Value arguments) {
 
     read_mode read_mode{read_mode::required};
 
+    std::set<Value> used_symbols{};
+
+    auto check_symbol_used = [&](Value v) {
+      if (used_symbols.contains(v)) {
+        std::ostringstream oss{};
+        oss << "the variable " << v
+            << " occurs more than once in the lambda list";
+        std::string str{oss.str()};
+        throw std::exception{str.c_str()};
+      }
+    };
+
     for (Cons::iterator it = cons->begin(); it != cons->end(); ++it) {
       Value v = *it;
 
@@ -33,9 +47,11 @@ OrdinaryLambdaList::OrdinaryLambdaList(Value arguments) {
         } else if (v == SYM_AND_AUX) {
           read_mode = read_mode::aux;
         } else if (is_symbol(v)) {
+          check_symbol_used(v);
+          used_symbols.insert(v);
           required.push_back(get_symbol(v));
         } else {
-          throw std::exception{"non-symbol in lambda list"};
+          throw std::exception{"required argument not a symbol"};
         }
         break;
       case read_mode::optional:
@@ -48,7 +64,43 @@ OrdinaryLambdaList::OrdinaryLambdaList(Value arguments) {
         } else if (v == SYM_AND_AUX) {
           read_mode = read_mode::aux;
         } else if (is_symbol(v)) {
-          throw NotImplemented();
+          check_symbol_used(v);
+          used_symbols.insert(v);
+          optional.emplace_back(get_symbol(v), std::nullopt, std::nullopt);
+        } else if (is_cons(v)) {
+          Cons *opt = get_cons(v);
+
+          Symbol *sym;
+          if (is_symbol(opt->get_car())) {
+            check_symbol_used(opt->get_car());
+            used_symbols.insert(opt->get_car());
+            sym = get_symbol(opt->get_car());
+          } else {
+            throw std::exception{"non-symbol in lambda list"};
+          }
+
+          if (is_cons(opt->get_cdr())) {
+            opt = get_cons(opt->get_cdr());
+            Value init_form = opt->get_car();
+            if (is_cons(opt->get_cdr())) {
+              opt = get_cons(opt->get_cdr());
+              if (is_symbol(opt->get_car())) {
+                check_symbol_used(opt->get_car());
+                used_symbols.insert(opt->get_car());
+                Symbol *supplied = get_symbol(opt->get_car());
+                if (!is_nil(opt->get_cdr())) {
+                  throw std::exception{"invalid lambda list syntax"};
+                }
+                optional.emplace_back(sym, init_form, supplied);
+              } else {
+                throw std::exception{"non-symbol in lambda list"};
+              }
+            } else if (!is_nil(opt->get_cdr())) {
+              throw std::exception{"invalid lambda list syntax"};
+            }
+          } else {
+            optional.emplace_back(sym, std::nullopt, std::nullopt);
+          }
         } else {
           throw std::exception{"non-symbol in lambda list"};
         }
@@ -102,5 +154,8 @@ OrdinaryLambdaList::OrdinaryLambdaList(Value arguments) {
     }
   }
 }
+
+OrdinaryLambdaList::OrdinaryLambdaList(OrdinaryLambdaList &&other) noexcept =
+    default;
 
 } // namespace lisp

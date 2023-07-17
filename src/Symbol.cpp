@@ -14,6 +14,8 @@ void Symbol::trace(bool marking) {
   trace_value(package, marking);
 }
 
+Value Symbol::get_package() { return package; }
+
 const std::string &Symbol::get_name() const { return name; }
 
 Value Symbol::get_value() { return value; }

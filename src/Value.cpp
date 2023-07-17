@@ -5,6 +5,8 @@ namespace lisp {
 
 Value::operator bool() const { return !is_nil(*this); }
 
+bool Value::operator<(const Value &other) const { return tag < other.tag; }
+
 Value make_value(std::int32_t integer) {
   Value v{};
   v.integer[1] = integer;

@@ -39,7 +39,13 @@ void Environment::bind_lexical_variable(Value name, Value value, bool special) {
 }
 
 bool Environment::is_lexical_special(Value name) {
-  return lookup_binding(name, lexical_variables)->is_special();
+  Binding *binding = lookup_binding(name, lexical_variables);
+
+  if (binding) {
+    return binding->is_special();
+  } else {
+    return false;
+  }
 }
 
 void Environment::assign_variable(Value name, Value value) {
