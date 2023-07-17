@@ -103,6 +103,11 @@ Value SYM_STAR_PACKAGE_STAR;
 Value SYM_DEFUN;
 Value SYM_DEFPARAMETER;
 Value SYM_DEFVAR;
+Value SYM_AND_ALLOW_OTHER_KEYS;
+Value SYM_AND_AUX;
+Value SYM_AND_KEY;
+Value SYM_AND_OPTIONAL;
+Value SYM_AND_REST;
 
 void init_symbols() {
   SYM_NIL = PKG_CL->add_external_symbol("NIL");
@@ -142,6 +147,11 @@ void init_symbols() {
   SYM_DEFUN = PKG_CL->add_external_symbol("DEFUN");
   SYM_DEFPARAMETER = PKG_CL->add_external_symbol("DEFPARAMETER");
   SYM_DEFVAR = PKG_CL->add_external_symbol("DEFVAR");
+  SYM_AND_ALLOW_OTHER_KEYS = PKG_CL->add_external_symbol("&ALLOW-OTHER-KEYS");
+  SYM_AND_AUX = PKG_CL->add_external_symbol("&AUX");
+  SYM_AND_KEY = PKG_CL->add_external_symbol("&KEY");
+  SYM_AND_OPTIONAL = PKG_CL->add_external_symbol("&OPTIONAL");
+  SYM_AND_REST = PKG_CL->add_external_symbol("&REST");
 }
 
 } // namespace lisp

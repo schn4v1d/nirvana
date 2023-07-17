@@ -29,9 +29,10 @@ int main() {
       while (true) {
         Value v = read(input_stream, environment);
 
+        std::cout << "> " << v << std::endl;
+
         Value result = eval(v, environment);
 
-        std::cout << "> " << v << std::endl;
         std::cout << result << std::endl;
       }
     } catch (ReadEndOfFile &e) {

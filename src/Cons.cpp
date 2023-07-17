@@ -7,9 +7,9 @@ namespace lisp {
 
 Cons::Cons(Value car, Value cdr) : Object(OBJ_CONS), car{car}, cdr{cdr} {}
 
-Value Cons::get_car() { return car; }
+Value &Cons::get_car() { return car; }
 
-Value Cons::get_cdr() { return cdr; }
+Value &Cons::get_cdr() { return cdr; }
 
 void Cons::set_car(Value new_car) { car = new_car; }
 
@@ -44,6 +44,10 @@ std::ostream &Cons::print(std::ostream &os) {
 
   return os << ')';
 }
+
+Cons::iterator Cons::begin() const { return Cons::iterator{make_value()}; }
+
+Cons::iterator Cons::end() const { return Cons::iterator{NIL}; }
 
 bool is_cons(Value value) {
   if (is_object(value)) {
@@ -81,6 +85,7 @@ Value iter_list(const std::function<std::optional<Value>(Value)> &func,
 
   return UNBOUND;
 }
+
 Value map_list(const std::function<Value(Value)> &func, Value list) {
   Value current = list;
   Value result = NIL;
@@ -104,6 +109,19 @@ Value map_list(const std::function<Value(Value)> &func, Value list) {
   }
 
   return result;
+}
+
+Cons::iterator::iterator(Value value) : value{value} {}
+
+Cons::iterator &Cons::iterator::operator++() {
+  value = cl::cdr(value);
+  return *this;
+}
+
+Value &Cons::iterator::operator*() const { return get_cons(value)->get_car(); }
+
+bool Cons::iterator::operator!=(const Cons::iterator &other) const {
+  return value != other.value;
 }
 
 } // namespace lisp

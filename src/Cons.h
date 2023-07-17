@@ -3,6 +3,7 @@
 #include "Object.h"
 #include <functional>
 #include <optional>
+#include <iterator>
 
 namespace lisp {
 
@@ -12,14 +13,28 @@ class Cons : public Object {
 public:
   Cons(Value car, Value cdr);
 
-  Value get_car();
-  Value get_cdr();
+  Value &get_car();
+  Value &get_cdr();
   void set_car(Value new_car);
   void set_cdr(Value new_cdr);
 
   void trace(bool marking) override;
 
   std::ostream &print(std::ostream &os) override;
+
+  struct iterator {
+    Value value{NIL};
+
+    iterator() = default;
+    explicit iterator(Value value);
+
+    Value &operator*() const;
+    iterator &operator++();
+    bool operator!=(const iterator &other) const;
+  };
+
+  [[nodiscard]] iterator begin() const;
+  [[nodiscard]] iterator end() const;
 };
 
 bool is_cons(Value value);

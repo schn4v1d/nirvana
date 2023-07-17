@@ -14,9 +14,7 @@ BuiltinFunction::BuiltinFunction(std::function<Value(Value)> function)
 
 void BuiltinFunction::trace(bool marking) { mark(marking); }
 
-Value BuiltinFunction::call(Value args) {
-  return function(args);
-}
+Value BuiltinFunction::call(Value args) { return function(args); }
 
 bool is_builtin_function(Value value) {
   if (is_object(value)) {
@@ -39,6 +37,23 @@ Value make_builtin_function_v(std::function<Value(Value)> function) {
 }
 
 void init_builtin_functions() {
+  get_symbol(PKG_CL->intern("NULL", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        if (is_nil(cl::first(args))) {
+          return T;
+        } else {
+          return NIL;
+        }
+      }));
+
+  get_symbol(PKG_CL->intern("CAR", true))
+      ->set_function(make_builtin_function_v(
+          [](Value args) -> Value { return cl::car(cl::first(args)); }));
+
+  get_symbol(PKG_CL->intern("CDR", true))
+      ->set_function(make_builtin_function_v(
+          [](Value args) -> Value { return cl::cdr(cl::first(args)); }));
+
   get_symbol(PKG_CL->add_external_symbol("FIND-PACKAGE"))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         Value name = cl::first(args);

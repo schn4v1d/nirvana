@@ -36,7 +36,7 @@ public:
 
   virtual std::ostream& print(std::ostream& os);
 
-  inline Value make_value() {
+  [[nodiscard]] inline Value make_value() const {
     return Value{.object = reinterpret_cast<Object *>(
                      reinterpret_cast<std::uintptr_t>(this) | TAG_OBJECT)};
   }

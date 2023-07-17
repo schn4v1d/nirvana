@@ -70,6 +70,11 @@ extern Value SYM_STAR_PACKAGE_STAR;
 extern Value SYM_DEFUN;
 extern Value SYM_DEFPARAMETER;
 extern Value SYM_DEFVAR;
+extern Value SYM_AND_ALLOW_OTHER_KEYS;
+extern Value SYM_AND_AUX;
+extern Value SYM_AND_KEY;
+extern Value SYM_AND_OPTIONAL;
+extern Value SYM_AND_REST;
 
 void init_symbols();
 

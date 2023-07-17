@@ -1,11 +1,14 @@
 #include "eval.h"
 #include "Cons.h"
 #include "Function.h"
+#include "OrdinaryLambdaList.h"
 #include "Package.h"
 #include "Symbol.h"
 #include "cl_fun.h"
+#include "errors.h"
 #include "util.h"
 #include <cassert>
+#include <iostream>
 #include <unordered_map>
 
 namespace lisp {
@@ -21,8 +24,9 @@ void init_eval() {
   special_forms.insert(
       std::make_pair(get_symbol(SYM_DEFUN), [](Value args, Environment *env) {
         Value name = cl::first(args);
+        Value lambda_list = cl::second(args);
 
-        assert(false);
+        OrdinaryLambdaList oll{lambda_list};
 
         return name;
       }));
@@ -159,7 +163,7 @@ Value eval(Value value, Environment *env) {
                                cons->get_cdr()));
       }
 
-      assert(false);
+      throw UndefinedFunction{name->get_name()};
     } else {
       throw NotImplemented{};
     }
@@ -183,7 +187,7 @@ Value eval(Value value, Environment *env) {
     if (is_unbound(result)) {
       result = symbol->get_value();
       if (is_unbound(result)) {
-        assert(false);
+        throw UnboundVariable{symbol->get_name()};
       }
     }
 
