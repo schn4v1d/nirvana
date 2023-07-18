@@ -1,6 +1,7 @@
 #include "reader.h"
 #include "Cons.h"
 #include "Package.h"
+#include "String.h"
 #include "eval.h"
 #include "util.h"
 
@@ -267,7 +268,39 @@ bool parse_number(std::string_view token, Value &value) {
 }
 
 bool parse_symbol(std::string_view token, Value &value, Environment *env) {
-  value = get_package(eval(SYM_STAR_PACKAGE_STAR, env))->intern(token, false);
+  if (!token.contains(':')) {
+    value = get_package(eval(SYM_STAR_PACKAGE_STAR, env))->intern(token, false);
+  } else if (token[0] == ':' && !token.substr(1).contains(':')) {
+    value = PKG_KEYWORD->intern(token, true);
+  } else {
+    size_t index = token.find(':');
+    std::string_view package_prefix = token.substr(0, index);
+    Value packagev = find_package(make_string_v(std::string{package_prefix}));
+    if (is_nil(packagev)) {
+      std::ostringstream oss{};
+      oss << "package " << package_prefix << " does not exist";
+      throw std::runtime_error{oss.str()};
+    }
+    Package *package = get_package(packagev);
+
+    if (token[index + 1] == ':') {
+      std::string_view symbol_name = token.substr(index + 2);
+
+      if (symbol_name.contains(':')) {
+        return false;
+      }
+
+      value = package->get_external_symbol(symbol_name)->make_value();
+    } else {
+      std::string_view symbol_name = token.substr(index + 1);
+
+      if (symbol_name.contains(':')) {
+        return false;
+      }
+
+      value = package->intern(symbol_name, false);
+    }
+  }
 
   return true;
 }

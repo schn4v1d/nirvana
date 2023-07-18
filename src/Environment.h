@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Block.h"
 #include "DynamicBindings.h"
 #include "Object.h"
 
@@ -8,6 +9,7 @@ namespace lisp {
 class Environment : public Object {
   Value lexical_variables{NIL};
   Value lexical_functions{NIL};
+  Value blocks{NIL};
 
 public:
   explicit Environment();
@@ -18,10 +20,12 @@ public:
   Value lookup_variable(Value name);
   Value lookup_function(Value name);
   Value lookup_special(Value name);
+  Value lookup_block(Value name);
   void bind_lexical_variable(Value name, Value value, bool special = false);
   void bind_lexical_function(Value name, Value value, bool special = false);
   bool is_lexical_special(Value name);
   void assign_variable(Value name, Value value);
+  Block *establish_block(Value name);
 };
 
 bool is_environment(Value value);

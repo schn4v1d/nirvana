@@ -82,6 +82,10 @@ Value Package::intern(std::string_view symbol_name, bool external) {
     internal_symbols.insert(std::make_pair(symbol_name, symbol));
   }
 
+  if (this == PKG_KEYWORD) {
+    symbol->set_value(symbol->make_value());
+  }
+
   return symbol->make_value();
 }
 
@@ -165,12 +169,18 @@ Package *coerce_to_package(Value value) {
 
 Package *PKG_CL;
 Package *PKG_CL_USER;
+Package *PKG_KEYWORD;
+Package *PKG_NIRVANA_BUILTINS;
 
 void init_packages() {
   PKG_CL = make_package("COMMON-LISP");
 
   PKG_CL_USER = make_package("COMMON-LISP-USER");
   PKG_CL_USER->use_package(PKG_CL);
+
+  PKG_KEYWORD = make_package("KEYWORD");
+
+  PKG_NIRVANA_BUILTINS = make_package("NIRVANA-BUILTINS");
 }
 
 } // namespace lisp

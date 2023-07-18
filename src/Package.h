@@ -14,9 +14,6 @@ class Package : public Object {
   std::map<std::string, Symbol *, std::less<>> external_symbols;
   std::vector<Package *> used_packages;
 
-  Symbol *get_internal_symbol(std::string_view symbol_name);
-  Symbol *get_external_symbol(std::string_view symbol_name);
-
 public:
   explicit Package(std::string_view name);
 
@@ -25,6 +22,9 @@ public:
   std::ostream &print(std::ostream &os) const override;
 
   [[nodiscard]] const std::string &get_name() const;
+
+  Symbol *get_internal_symbol(std::string_view symbol_name);
+  Symbol *get_external_symbol(std::string_view symbol_name);
 
   Value add_external_symbol(std::string_view symbol_name);
   Value intern(std::string_view symbol_name, bool external);
@@ -40,6 +40,8 @@ Package *get_package(Value value);
 
 extern Package *PKG_CL;
 extern Package *PKG_CL_USER;
+extern Package *PKG_KEYWORD;
+extern Package *PKG_NIRVANA_BUILTINS;
 
 Value find_package(Value arg);
 Package *coerce_to_package(Value value);

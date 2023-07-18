@@ -129,11 +129,12 @@
 (defun identity (object)
   object)
 
-(setq x '(a b c))
-`(x ,x ,@x foo ,(cadr x) bar ,(cdr x) baz ,@(cdr x))
-
-(%defmacro 'lambda
+(nirvana-builtins:%defmacro 'lambda
            #'(lambda (args env)
                `#'(lambda ,(car args) ,@(cdr args))))
 
-((lambda (x) (cons x x)) 1)
+(defun temp (x)
+  (if x (return-from temp 'dummy))
+  44)
+
+(temp t)

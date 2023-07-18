@@ -82,14 +82,14 @@ void init_builtin_functions() {
         }
       }));
 
-  get_symbol(PKG_CL->add_external_symbol("FIND-PACKAGE"))
+  get_symbol(PKG_NIRVANA_BUILTINS->add_external_symbol("%FIND-PACKAGE"))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         Value name = cl::first(args);
 
         return find_package(name);
       }));
 
-  get_symbol(PKG_CL->add_external_symbol("EXPORT"))
+  get_symbol(PKG_NIRVANA_BUILTINS->add_external_symbol("%EXPORT"))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         Value symbols = cl::first(args);
         if (is_nil(symbols))
@@ -97,12 +97,7 @@ void init_builtin_functions() {
         if (!is_cons(symbols))
           symbols = make_cons_v(symbols, NIL);
 
-        Package *package;
-        if (!is_cons(cl::cdr(args))) {
-          package = get_package(get_symbol(SYM_STAR_PACKAGE_STAR)->get_value());
-        } else {
-          package = coerce_to_package(cl::second(args));
-        }
+        Package *package = coerce_to_package(cl::second(args));
 
         map_list(
             [&](Value sym) {
@@ -187,7 +182,7 @@ void init_builtin_functions() {
         }
       }));
 
-  get_symbol(PKG_CL->intern("%DEFUN", true))
+  get_symbol(PKG_NIRVANA_BUILTINS->intern("%DEFUN", true))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         Value name = cl::first(args);
         Value lambda = cl::second(args);
@@ -197,7 +192,7 @@ void init_builtin_functions() {
         return name;
       }));
 
-  get_symbol(PKG_CL->intern("%DEFMACRO", true))
+  get_symbol(PKG_NIRVANA_BUILTINS->intern("%DEFMACRO", true))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         Value name = cl::first(args);
         Lambda *lambda = get_lambda(cl::second(args));

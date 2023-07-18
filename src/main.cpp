@@ -39,7 +39,8 @@ int main() {
 
     Environment *environment = make_environment();
 
-    load_file("cl/in-package.lisp", environment);
+    load_file("cl/core.lisp", environment);
+    load_file("cl/defun.lisp", environment);
     std::cout << load_file("cl/test.lisp", environment);
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;

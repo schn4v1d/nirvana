@@ -1,5 +1,6 @@
 #include "Environment.h"
 #include "Binding.h"
+#include "Block.h"
 #include "Cons.h"
 #include "GarbageCollector.h"
 #include "Symbol.h"
@@ -38,6 +39,25 @@ Value Environment::lookup_special(Value name) {
   return dynamic_bindings->lookup_value(name);
 }
 
+Value Environment::lookup_block(Value name) {
+  Value result = iter_list(
+      [name](Value blockv) -> std::optional<Value> {
+        Block *block = get_block(blockv);
+        if (block->get_name() == name) {
+          return blockv;
+        } else {
+          return std::nullopt;
+        }
+      },
+      blocks);
+
+  if (is_unbound(result)) {
+    return NIL;
+  } else {
+    return result;
+  }
+}
+
 void Environment::bind_lexical_variable(Value name, Value value, bool special) {
   lexical_variables =
       make_cons_v(make_binding_v(name, value, special), lexical_variables);
@@ -73,6 +93,12 @@ void Environment::assign_variable(Value name, Value value) {
       symbol->set_value(value);
     }
   }
+}
+
+Block *Environment::establish_block(Value name) {
+  Block *block = make_block(name);
+  blocks = make_cons_v(block->make_value(), blocks);
+  return block;
 }
 
 bool is_environment(Value value) {

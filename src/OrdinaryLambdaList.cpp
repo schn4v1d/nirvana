@@ -1,5 +1,6 @@
 #include "OrdinaryLambdaList.h"
 #include "Cons.h"
+#include "eval.h"
 #include "util.h"
 #include <set>
 #include <sstream>
@@ -71,6 +72,9 @@ OrdinaryLambdaList::OrdinaryLambdaList(Value arguments) {
           Cons *opt = get_cons(v);
 
           Symbol *sym;
+          std::optional<Value> init_form{std::nullopt};
+          std::optional<Symbol *> suppliedp{std::nullopt};
+
           if (is_symbol(opt->get_car())) {
             check_symbol_used(opt->get_car());
             used_symbols.insert(opt->get_car());
@@ -81,26 +85,27 @@ OrdinaryLambdaList::OrdinaryLambdaList(Value arguments) {
 
           if (is_cons(opt->get_cdr())) {
             opt = get_cons(opt->get_cdr());
-            Value init_form = opt->get_car();
+            init_form = opt->get_car();
+
             if (is_cons(opt->get_cdr())) {
               opt = get_cons(opt->get_cdr());
               if (is_symbol(opt->get_car())) {
                 check_symbol_used(opt->get_car());
                 used_symbols.insert(opt->get_car());
-                Symbol *supplied = get_symbol(opt->get_car());
+                suppliedp = get_symbol(opt->get_car());
+
                 if (!is_nil(opt->get_cdr())) {
                   throw std::exception{"invalid lambda list syntax"};
                 }
-                optional.emplace_back(sym, init_form, supplied);
               } else {
                 throw std::exception{"non-symbol in lambda list"};
               }
             } else if (!is_nil(opt->get_cdr())) {
               throw std::exception{"invalid lambda list syntax"};
             }
-          } else {
-            optional.emplace_back(sym, std::nullopt, std::nullopt);
           }
+
+          optional.emplace_back(sym, init_form, suppliedp);
         } else {
           throw std::exception{"non-symbol in lambda list"};
         }
@@ -159,25 +164,46 @@ OrdinaryLambdaList::OrdinaryLambdaList(OrdinaryLambdaList &&other) noexcept =
     default;
 
 void OrdinaryLambdaList::bind_arguments(Value argsv, Environment *env) {
-  if (is_nil(argsv)) {
-    return;
-  }
-
-  if (!is_cons(argsv)) {
+  if (!is_nil(argsv) && !is_cons(argsv)) {
     throw std::exception{"invalid call arguments"};
   }
 
-  Cons *args = get_cons(argsv);
   size_t i = 0;
 
-  for (Cons::iterator it = args->begin(); it != args->end(); ++it, ++i) {
-    if (i < required.size()) {
-      env->bind_lexical_variable(required[i]->make_value(), *it);
+  if (is_cons(argsv)) {
+    Cons *args = get_cons(argsv);
+
+    for (Cons::iterator it = args->begin(); it != args->end(); ++it, ++i) {
+      if (i < required.size()) {
+        env->bind_lexical_variable(required[i]->make_value(), *it);
+      } else if (i - required.size() < optional.size()) {
+        auto [name, value, suppliedp] = optional[i - required.size()];
+
+        env->bind_lexical_variable(name->make_value(), *it);
+
+        if (suppliedp.has_value()) {
+          env->bind_lexical_variable(suppliedp.value()->make_value(), T);
+        }
+      }
     }
   }
 
   if (i < required.size()) {
     throw std::exception{"not enough arguments"};
+  }
+
+  if (i - required.size() < optional.size()) {
+    for (size_t oi = i - required.size(); oi < optional.size(); ++oi) {
+      auto [name, value, suppliedp] = optional[oi];
+
+      env->bind_lexical_variable(name->make_value(),
+                                 value.has_value() ? eval(value.value(), env)
+                                                   : NIL);
+
+      if (suppliedp.has_value()) {
+        env->bind_lexical_variable(suppliedp.value()->make_value(), NIL);
+      }
+    }
   }
 }
 

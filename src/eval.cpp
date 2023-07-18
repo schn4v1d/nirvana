@@ -10,6 +10,7 @@
 #include "errors.h"
 #include "util.h"
 #include <cassert>
+#include <sstream>
 #include <unordered_map>
 
 namespace lisp {
@@ -90,23 +91,28 @@ void init_eval() {
         return process_form(cl::car(args))[0];
       }));
 
-  special_forms.insert(
-      std::make_pair(get_symbol(SYM_DEFUN), [](Value args, Environment *env) {
-        Value namev = cl::first(args);
-        Value lambda_list = cl::second(args);
-        Value body = cl::cddr(args);
+  special_forms.insert(std::make_pair(
+      get_symbol(SYM_BLOCK), [](Value args, Environment *parent) {
+        Value result{NIL};
 
-        if (!is_symbol(namev)) {
-          throw std::exception("defun needs symbol name");
+        Environment *env = make_environment(parent);
+
+        Value name = cl::car(args);
+
+        Block *block = env->establish_block(name);
+
+        Value body = cl::cdr(args);
+
+        if (setjmp(*block->get_jmp_buf()) == 0) {
+          while (!is_nil(body)) {
+            result = eval(cl::car(body), env);
+            body = cl::cdr(body);
+          }
+        } else {
+          result = block->get_return_value();
         }
 
-        Symbol *name = get_symbol(namev);
-
-        OrdinaryLambdaList oll{lambda_list};
-
-        name->set_function(make_lambda_v(std::move(oll), env, body));
-
-        return namev;
+        return result;
       }));
 
   special_forms.insert(
@@ -200,6 +206,29 @@ void init_eval() {
   special_forms.insert(
       std::make_pair(get_symbol(SYM_QUOTE), [](Value args, Environment *env) {
         return cl::car(args);
+      }));
+
+  special_forms.insert(std::make_pair(
+      get_symbol(SYM_RETURN_FROM), [](Value args, Environment *env) {
+        Value block_name = cl::first(args);
+        Value return_value = eval(cl::second(args), env);
+
+        Value blockv = env->lookup_block(block_name);
+        if (is_nil(blockv)) {
+          std::ostringstream oss{};
+          oss << "no block named " << block_name << "in current environment";
+          throw std::runtime_error{oss.str()};
+        }
+
+        Block *block = get_block(blockv);
+
+        block->set_return_value(return_value);
+
+        // TODO handle unwind-protect
+
+        longjmp(*block->get_jmp_buf(), 1);
+
+        return NIL;
       }));
 
   special_forms.insert(
