@@ -2,6 +2,7 @@
 
 #include <optional>
 #include <stdexcept>
+#include <source_location>
 
 template <class T> std::optional<T> optional_ptr(T ptr) {
   if (ptr == nullptr) {
@@ -18,5 +19,5 @@ template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 class NotImplemented : public std::logic_error {
 public:
-  NotImplemented();
+  explicit NotImplemented(std::source_location location = std::source_location::current());
 };

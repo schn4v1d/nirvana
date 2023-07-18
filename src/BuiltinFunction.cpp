@@ -2,9 +2,14 @@
 
 #include "Cons.h"
 #include "GarbageCollector.h"
+#include "Lambda.h"
+#include "MacroFunction.h"
+#include "OrdinaryLambdaList.h"
 #include "Package.h"
+#include "String.h"
 #include "Symbol.h"
 #include "cl_fun.h"
+#include <sstream>
 #include <utility>
 
 namespace lisp {
@@ -107,6 +112,95 @@ void init_builtin_functions() {
             symbols);
 
         return T;
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("SYMBOLP"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        if (is_symbol(cl::car(args))) {
+          return T;
+        } else {
+          return NIL;
+        }
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("SYMBOL-FUNCTION"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        return get_symbol(cl::car(args))->get_function();
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("SYMBOL-NAME"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        return make_string_v(get_symbol(cl::car(args))->get_name());
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("SYMBOL-PACKAGE"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        return get_symbol(cl::car(args))->get_package();
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("SYMBOL-VALUE"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Symbol *sym = get_symbol(cl::car(args));
+        Value v = sym->get_value();
+
+        if (is_unbound(v)) {
+          std::ostringstream oss{};
+          oss << "unbound variable " << sym;
+          std::string str{oss.str()};
+          throw std::exception{str.c_str()};
+        }
+
+        return v;
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("BOUNDP"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Symbol *sym = get_symbol(cl::car(args));
+        Value v = sym->get_value();
+
+        if (is_unbound(v)) {
+          return NIL;
+        }
+
+        return T;
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("MAKUNBOUND"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Symbol *sym = get_symbol(cl::car(args));
+
+        sym->set_value(UNBOUND);
+
+        return sym->make_value();
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("STRINGP"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        if (is_string(cl::car(args))) {
+          return T;
+        } else {
+          return NIL;
+        }
+      }));
+
+  get_symbol(PKG_CL->intern("%DEFUN", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Value name = cl::first(args);
+        Value lambda = cl::second(args);
+
+        get_symbol(name)->set_function(lambda);
+
+        return name;
+      }));
+
+  get_symbol(PKG_CL->intern("%DEFMACRO", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Value name = cl::first(args);
+        Lambda *lambda = get_lambda(cl::second(args));
+
+        get_symbol(name)->set_function(make_macro_function_v(lambda));
+
+        return name;
       }));
 }
 

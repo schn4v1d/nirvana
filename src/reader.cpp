@@ -120,6 +120,38 @@ void init_reader_macros() {
 
     return make_cons_v(SYM_QUOTE, make_cons_v(quote, NIL));
   };
+
+  reader_macros[','] = [](std::istringstream &input, char _, Environment *env) {
+    bool splicing{false};
+    if (input.peek() == '@') {
+      input.get();
+      splicing = true;
+    }
+
+    Value unquote = read(input, env);
+
+    return make_cons_v(splicing ? SYM_UNQUOTE_SPLICING : SYM_UNQUOTE,
+                       make_cons_v(unquote, NIL));
+  };
+
+  reader_macros['`'] = [](std::istringstream &input, char _, Environment *env) {
+    Value form = read(input, env);
+
+    return make_cons_v(SYM_BACKQUOTE, make_cons_v(form, NIL));
+  };
+
+  reader_macros['#'] = [](std::istringstream &input, char _, Environment *env) {
+    switch (input.peek()) {
+    case ':':
+      input.get();
+      return make_symbol_v(get_symbol(read(input, env))->get_name(), NIL);
+    case '\'':
+      input.get();
+      return make_cons_v(SYM_FUNCTION, make_cons_v(read(input, env), NIL));
+    default:
+      throw NotImplemented{};
+    }
+  };
 }
 
 void init_reader() {
@@ -158,7 +190,8 @@ bool is_multiple_escape(char x) {
 }
 
 void skip_whitespace(std::istringstream &input) {
-  while (!input.eof() && input.peek() != -1 && is_whitespace((char)input.peek())) {
+  while (!input.eof() && input.peek() != -1 &&
+         is_whitespace((char)input.peek())) {
     input.get();
   }
 }

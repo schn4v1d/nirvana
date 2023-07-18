@@ -19,23 +19,7 @@ void Lambda::trace(bool marking) {
 Value Lambda::call(Value argsv) {
   Environment *inner = make_environment(env);
 
-  if (is_cons(argsv)) {
-    Cons *args = get_cons(argsv);
-    size_t i = 0;
-
-    for (Cons::iterator it = args->begin(); it != args->end(); ++it, ++i) {
-      if (i < lambda_list.required.size()) {
-        inner->bind_lexical_variable(lambda_list.required[i]->make_value(),
-                                     *it);
-      }
-    }
-
-    if (i < lambda_list.required.size()) {
-      throw std::exception{"not enough arguments"};
-    }
-  } else if (!is_nil(argsv)) {
-    throw std::exception{"invalid call arguments"};
-  }
+  lambda_list.bind_arguments(argsv, inner);
 
   Value result = NIL;
   map_list([&](Value expr) { return result = eval(expr, inner); }, body);

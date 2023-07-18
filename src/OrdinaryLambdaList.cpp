@@ -158,4 +158,27 @@ OrdinaryLambdaList::OrdinaryLambdaList(Value arguments) {
 OrdinaryLambdaList::OrdinaryLambdaList(OrdinaryLambdaList &&other) noexcept =
     default;
 
+void OrdinaryLambdaList::bind_arguments(Value argsv, Environment *env) {
+  if (is_nil(argsv)) {
+    return;
+  }
+
+  if (!is_cons(argsv)) {
+    throw std::exception{"invalid call arguments"};
+  }
+
+  Cons *args = get_cons(argsv);
+  size_t i = 0;
+
+  for (Cons::iterator it = args->begin(); it != args->end(); ++it, ++i) {
+    if (i < required.size()) {
+      env->bind_lexical_variable(required[i]->make_value(), *it);
+    }
+  }
+
+  if (i < required.size()) {
+    throw std::exception{"not enough arguments"};
+  }
+}
+
 } // namespace lisp

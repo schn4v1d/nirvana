@@ -2,6 +2,7 @@
 #include "Cons.h"
 #include "Function.h"
 #include "Lambda.h"
+#include "MacroFunction.h"
 #include "OrdinaryLambdaList.h"
 #include "Package.h"
 #include "Symbol.h"
@@ -9,10 +10,35 @@
 #include "errors.h"
 #include "util.h"
 #include <cassert>
-#include <iostream>
 #include <unordered_map>
 
 namespace lisp {
+
+Value get_function(Value op, Environment *env) {
+  if (is_symbol(op)) {
+
+    Value function = env->lookup_function(op);
+
+    if (is_unbound(function)) {
+      Symbol *name = get_symbol(op);
+
+      if (name->is_fbound()) {
+        function = name->get_function();
+      } else {
+        throw UndefinedFunction{name->get_name()};
+      }
+    }
+
+    return function;
+  } else if (is_cons(op) && cl::car(op) == SYM_LAMBDA) {
+    OrdinaryLambdaList lambda_list{cl::second(op)};
+    Value body = cl::cddr(op);
+
+    return make_lambda_v(std::move(lambda_list), env, body);
+  } else {
+    throw std::exception{"invalid function"};
+  }
+}
 
 std::unordered_map<Symbol *, std::function<Value(Value args, Environment *env)>>
     special_forms{};
@@ -21,6 +47,48 @@ void init_eval() {
   Symbol *current_package = get_symbol(SYM_STAR_PACKAGE_STAR);
   current_package->declare_special();
   current_package->set_value(PKG_CL_USER->make_value());
+
+  special_forms.insert(std::make_pair(
+      get_symbol(SYM_BACKQUOTE), [](Value args, Environment *env) {
+        std::function<std::vector<Value>(Value)> process_form =
+            [&](Value form) -> std::vector<Value> {
+          if (!is_cons(form)) {
+            return {form};
+          }
+
+          Cons *cons = get_cons(form);
+
+          if (SYM_UNQUOTE == cons->get_car()) {
+            return {eval(get_cons(cons->get_cdr())->get_car(), env)};
+          }
+
+          if (SYM_UNQUOTE_SPLICING == cons->get_car()) {
+            Cons *splice =
+                get_cons(eval(get_cons(cons->get_cdr())->get_car(), env));
+            std::vector<Value> result{};
+
+            for (const auto &subform : *splice) {
+              result.push_back(subform);
+            }
+
+            return result;
+          }
+
+          std::vector<Value> forms{};
+
+          map_list(
+              [&](Value form) {
+                auto result = process_form(form);
+                forms.insert(forms.end(), result.begin(), result.end());
+                return NIL;
+              },
+              form);
+
+          return {list_from_cppvector(std::move(forms))};
+        };
+
+        return process_form(cl::car(args))[0];
+      }));
 
   special_forms.insert(
       std::make_pair(get_symbol(SYM_DEFUN), [](Value args, Environment *env) {
@@ -55,6 +123,13 @@ void init_eval() {
           return eval(else_form, env);
         }
       }));
+
+  special_forms.insert(std::make_pair(get_symbol(SYM_FUNCTION),
+                                      [](Value args, Environment *env) {
+                                        Value designator = cl::car(args);
+
+                                        return get_function(designator, env);
+                                      }));
 
   special_forms.insert(
       std::make_pair(get_symbol(SYM_LET), [](Value args, Environment *parent) {
@@ -156,27 +231,22 @@ Value eval(Value value, Environment *env) {
     Value op = cons->get_car();
 
     if (is_symbol(op)) {
-      Symbol *name = get_symbol(op);
-
-      auto special_form = special_forms.find(name);
+      auto special_form = special_forms.find(get_symbol(op));
       if (special_form != special_forms.end()) {
         return (*special_form).second(cons->get_cdr(), env);
       }
-
-      // TODO lexical
-
-      if (name->is_fbound()) {
-        Value function = name->get_function();
-
-        return call_function(
-            function, map_list([&env](Value arg) { return eval(arg, env); },
-                               cons->get_cdr()));
-      }
-
-      throw UndefinedFunction{name->get_name()};
-    } else {
-      throw NotImplemented{};
     }
+
+    Value function = get_function(op, env);
+
+    if (is_macro_function(function)) {
+      return eval(get_macro_function(function)->expand(cons->get_cdr(), env),
+                  env);
+    }
+
+    return call_function(function,
+                         map_list([&env](Value arg) { return eval(arg, env); },
+                                  cons->get_cdr()));
   } else if (is_symbol(value)) {
     Symbol *symbol = get_symbol(value);
 

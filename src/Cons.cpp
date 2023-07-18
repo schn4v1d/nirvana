@@ -22,9 +22,17 @@ void Cons::trace(bool marking) {
   trace_value(cdr, marking);
 }
 
-std::ostream &Cons::print(std::ostream &os) {
-  if (car == SYM_QUOTE && is_cons(cdr) && is_nil(cl::cdr(cdr))) {
-    return os << '\'' << cl::car(cdr);
+std::ostream &Cons::print(std::ostream &os) const {
+  if (is_cons(cdr) && is_nil(cl::cdr(cdr))) {
+    if (car == SYM_QUOTE) {
+      return os << '\'' << cl::car(cdr);
+    } else if (car == SYM_BACKQUOTE) {
+      return os << '`' << cl::car(cdr);
+    } else if (car == SYM_UNQUOTE) {
+      return os << ',' << cl::car(cdr);
+    } else if (car == SYM_UNQUOTE_SPLICING) {
+      return os << ",@" << cl::car(cdr);
+    }
   }
 
   os << '(' << car;
@@ -106,6 +114,17 @@ Value map_list(const std::function<Value(Value)> &func, Value list) {
     }
 
     current = current_cons->get_cdr();
+  }
+
+  return result;
+}
+
+Value list_from_cppvector(std::vector<Value> &&vec) {
+  Value result = NIL;
+
+  while (!vec.empty()) {
+    result = make_cons_v(vec.back(), result);
+    vec.pop_back();
   }
 
   return result;

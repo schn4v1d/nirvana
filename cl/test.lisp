@@ -128,10 +128,11 @@
 (defun identity (object)
   object)
 
-(setq *package* (find-package 'common-lisp-user))
+(setq x '(a b c))
+`(x ,x ,@x foo ,(cadr x) bar ,(cdr x) baz ,@(cdr x))
 
-(not nil)
-(not '())
-(not (integerp 'sss))
-(not (integerp 1))
-(not 'apple)
+(%defmacro 'lambda
+           #'(lambda (args env)
+               `#'(lambda ,(car args) ,@(cdr args))))
+
+((lambda (x) (cons x x)) 1)

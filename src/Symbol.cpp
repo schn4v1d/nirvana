@@ -38,7 +38,15 @@ bool Symbol::is_special() const { return specialp; }
 
 bool Symbol::is_constant() const { return constantp; }
 
-std::ostream &Symbol::print(std::ostream &os) { return os << name; }
+std::ostream &Symbol::print(std::ostream &os) const {
+  if (package == get_symbol(SYM_STAR_PACKAGE_STAR)->get_value()) {
+    return os << name;
+  } else if (is_nil(package)) {
+    return os << "#:" << name;
+  } else {
+    return os << lisp::get_package(package)->get_name() << ':' << name;
+  }
+}
 
 bool Symbol::is_bound() const { return !is_unbound(value); }
 
@@ -94,6 +102,9 @@ Value SYM_MULTIPLE_VALUE_PROG1;
 Value SYM_PROGN;
 Value SYM_PROGV;
 Value SYM_QUOTE;
+Value SYM_BACKQUOTE;
+Value SYM_UNQUOTE;
+Value SYM_UNQUOTE_SPLICING;
 Value SYM_RETURN_FROM;
 Value SYM_SETQ;
 Value SYM_SYMBOL_MACROLET;
@@ -110,6 +121,7 @@ Value SYM_AND_AUX;
 Value SYM_AND_KEY;
 Value SYM_AND_OPTIONAL;
 Value SYM_AND_REST;
+Value SYM_LAMBDA;
 
 void init_symbols() {
   SYM_NIL = PKG_CL->add_external_symbol("NIL");
@@ -138,6 +150,9 @@ void init_symbols() {
   SYM_PROGN = PKG_CL->add_external_symbol("PROGN");
   SYM_PROGV = PKG_CL->add_external_symbol("PROGV");
   SYM_QUOTE = PKG_CL->add_external_symbol("QUOTE");
+  SYM_BACKQUOTE = PKG_CL->add_external_symbol("BACKQUOTE");
+  SYM_UNQUOTE = PKG_CL->add_external_symbol("UNQUOTE");
+  SYM_UNQUOTE_SPLICING = PKG_CL->add_external_symbol("UNQUOTE-SPLICING");
   SYM_RETURN_FROM = PKG_CL->add_external_symbol("RETURN-FROM");
   SYM_SETQ = PKG_CL->add_external_symbol("SETQ");
   SYM_SYMBOL_MACROLET = PKG_CL->add_external_symbol("SYMBOL_MACROLET");
@@ -154,6 +169,7 @@ void init_symbols() {
   SYM_AND_KEY = PKG_CL->add_external_symbol("&KEY");
   SYM_AND_OPTIONAL = PKG_CL->add_external_symbol("&OPTIONAL");
   SYM_AND_REST = PKG_CL->add_external_symbol("&REST");
+  SYM_LAMBDA = PKG_CL->add_external_symbol("LAMBDA");
 }
 
 } // namespace lisp

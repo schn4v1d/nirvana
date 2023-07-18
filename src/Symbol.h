@@ -31,7 +31,7 @@ public:
 
   void trace(bool marking) override;
 
-  std::ostream &print(std::ostream &os) override;
+  std::ostream &print(std::ostream &os) const override;
 };
 
 bool is_symbol(Value value);
@@ -60,6 +60,9 @@ extern Value SYM_MULTIPLE_VALUE_PROG1;
 extern Value SYM_PROGN;
 extern Value SYM_PROGV;
 extern Value SYM_QUOTE;
+extern Value SYM_BACKQUOTE;
+extern Value SYM_UNQUOTE;
+extern Value SYM_UNQUOTE_SPLICING;
 extern Value SYM_RETURN_FROM;
 extern Value SYM_SETQ;
 extern Value SYM_SYMBOL_MACROLET;
@@ -76,6 +79,7 @@ extern Value SYM_AND_AUX;
 extern Value SYM_AND_KEY;
 extern Value SYM_AND_OPTIONAL;
 extern Value SYM_AND_REST;
+extern Value SYM_LAMBDA;
 
 void init_symbols();
 

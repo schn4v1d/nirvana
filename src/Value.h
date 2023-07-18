@@ -41,6 +41,7 @@ std::int32_t get_integer(Value value);
 void trace_value(Value value, bool marking);
 
 std::ostream &operator<<(std::ostream &os, const Value &value);
+std::string print_to_string(const Value &value);
 
 bool operator==(Value lhs, Value rhs);
 

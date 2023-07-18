@@ -22,7 +22,9 @@ public:
 
   void trace(bool marking) override;
 
-  std::ostream &print(std::ostream &os) override;
+  std::ostream &print(std::ostream &os) const override;
+
+  [[nodiscard]] const std::string &get_name() const;
 
   Value add_external_symbol(std::string_view symbol_name);
   Value intern(std::string_view symbol_name, bool external);

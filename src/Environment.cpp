@@ -2,7 +2,6 @@
 #include "Binding.h"
 #include "Cons.h"
 #include "GarbageCollector.h"
-#include "Package.h"
 #include "Symbol.h"
 
 namespace lisp {
@@ -16,17 +15,23 @@ Environment::Environment() : Environment{nullptr} {
 Environment::Environment(Environment *parent) : Object{OBJ_ENVIRONMENT} {
   if (parent) {
     lexical_variables = parent->lexical_variables;
+    lexical_functions = parent->lexical_functions;
   }
 }
 
 void Environment::trace(bool marking) {
   mark(marking);
   trace_value(lexical_variables, marking);
+  trace_value(lexical_functions, marking);
   trace_value(dynamic_bindings->make_value(), marking);
 }
 
 Value Environment::lookup_variable(Value name) {
   return lookup_value(name, lexical_variables);
+}
+
+Value Environment::lookup_function(Value name) {
+  return lookup_value(name, lexical_functions);
 }
 
 Value Environment::lookup_special(Value name) {
@@ -36,6 +41,11 @@ Value Environment::lookup_special(Value name) {
 void Environment::bind_lexical_variable(Value name, Value value, bool special) {
   lexical_variables =
       make_cons_v(make_binding_v(name, value, special), lexical_variables);
+}
+
+void Environment::bind_lexical_function(Value name, Value value, bool special) {
+  lexical_functions =
+      make_cons_v(make_binding_v(name, value, special), lexical_functions);
 }
 
 bool Environment::is_lexical_special(Value name) {

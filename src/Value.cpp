@@ -1,5 +1,6 @@
 #include "Value.h"
 #include "Object.h"
+#include <sstream>
 
 namespace lisp {
 
@@ -65,6 +66,12 @@ bool operator==(Value lhs, Value rhs) {
   default:
     return false;
   }
+}
+
+std::string print_to_string(const Value &value) {
+  std::ostringstream oss{};
+  oss << value;
+  return oss.str();
 }
 
 Value T;

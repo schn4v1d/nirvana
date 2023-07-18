@@ -20,7 +20,7 @@ public:
 
   void trace(bool marking) override;
 
-  std::ostream &print(std::ostream &os) override;
+  std::ostream &print(std::ostream &os) const override;
 
   struct iterator {
     Value value{NIL};
@@ -45,5 +45,7 @@ Value make_cons_v(Value car, Value cdr);
 
 Value iter_list(const std::function<std::optional<Value>(Value)>& func, Value list);
 Value map_list(const std::function<Value(Value)>& func, Value list);
+
+Value list_from_cppvector(std::vector<Value>&& vec);
 
 } // namespace lisp

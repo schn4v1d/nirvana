@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Environment.h"
 #include "Symbol.h"
 #include "Value.h"
 #include <optional>
@@ -17,6 +18,8 @@ struct OrdinaryLambdaList {
 
   explicit OrdinaryLambdaList(Value arguments);
   OrdinaryLambdaList(OrdinaryLambdaList &&other) noexcept;
+
+  void bind_arguments(Value args, Environment *env);
 };
 
 } // namespace lisp

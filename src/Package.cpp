@@ -96,7 +96,7 @@ void Package::use_package(Package *package) {
   used_packages.push_back(package);
 }
 
-std::ostream &Package::print(std::ostream &os) {
+std::ostream &Package::print(std::ostream &os) const {
   return os << "#<PACKAGE " << name << '>';
 }
 
@@ -112,6 +112,7 @@ void Package::export_symbol(Symbol *symbol) {
 
   throw NotImplemented{};
 }
+const std::string &Package::get_name() const { return name; }
 
 Package *make_package(std::string_view name) {
   return make_object<Package>(name);
