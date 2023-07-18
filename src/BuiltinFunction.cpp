@@ -174,6 +174,10 @@ void init_builtin_functions() {
         return sym->make_value();
       }));
 
+  get_symbol(PKG_CL->add_external_symbol("STRING"))
+      ->set_function(make_builtin_function_v(
+          [](Value args) -> Value { return cl::string(cl::car(args)); }));
+
   get_symbol(PKG_CL->add_external_symbol("STRINGP"))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         if (is_string(cl::car(args))) {

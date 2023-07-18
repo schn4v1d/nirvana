@@ -10,6 +10,25 @@
 
 using namespace lisp;
 
+Value load_file(const char *file_name, Environment *env) {
+  std::ifstream t{file_name};
+  std::stringstream buffer;
+  buffer << t.rdbuf();
+  std::istringstream input_stream{buffer.str()};
+
+  Value result = NIL;
+
+  try {
+    while (true) {
+      Value v = read(input_stream, env);
+      result = eval(v, env);
+    }
+  } catch (ReadEndOfFile &e) {
+  }
+
+  return result;
+}
+
 int main() {
   try {
     init_packages();
@@ -18,25 +37,10 @@ int main() {
     init_eval();
     init_builtin_functions();
 
-    std::ifstream t{"cl/test.lisp"};
-    std::stringstream buffer;
-    buffer << t.rdbuf();
-    std::istringstream input_stream{buffer.str()};
-
     Environment *environment = make_environment();
 
-    try {
-      while (true) {
-        Value v = read(input_stream, environment);
-
-        std::cout << "> " << v << std::endl;
-
-        Value result = eval(v, environment);
-
-        std::cout << result << std::endl;
-      }
-    } catch (ReadEndOfFile &e) {
-    }
+    load_file("cl/in-package.lisp", environment);
+    std::cout << load_file("cl/test.lisp", environment);
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
   }
