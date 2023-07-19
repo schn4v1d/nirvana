@@ -122,6 +122,13 @@ void init_reader_macros() {
     return make_cons_v(SYM_QUOTE, make_cons_v(quote, NIL));
   };
 
+  reader_macros[';'] = [](std::istringstream &input, char _, Environment *env) {
+    while (input.get() != '\n') {
+    }
+
+    return read(input, env);
+  };
+
   reader_macros['"'] = [](std::istringstream &input, char _, Environment *env) {
     std::ostringstream oss{};
 

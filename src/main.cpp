@@ -36,7 +36,10 @@ int main() {
 
     Environment *environment = make_environment();
 
-    execute("(load \"cl/core.lisp\")", environment);
+    execute("(load \"cl/common-lisp.lisp\")", environment);
+
+    std::cout << "loaded core successfully" << std::endl;
+
     std::cout << execute("(load \"cl/test.lisp\")", environment) << std::endl;
 
     try {
@@ -44,8 +47,8 @@ int main() {
 
       std::cout << "ansi tests succeeded!" << std::endl;
     } catch (std::exception &e) {
-      std::cerr << e.what() << std::endl;
-      std::cerr << "ansi tests failed." << std::endl;
+      std::cout << e.what() << std::endl;
+      std::cout << "ansi tests failed." << std::endl;
     }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;

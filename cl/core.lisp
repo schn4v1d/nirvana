@@ -1,6 +1,6 @@
 (setq *package* (nirvana-builtins:%find-package 'common-lisp))
 
-(nirvana-builtins:%export '(in-package defun) *package*)
+(nirvana-builtins:%export '(in-package export defun) *package*)
 
 (nirvana-builtins:%defmacro 'defun
   #'(lambda (args env)
