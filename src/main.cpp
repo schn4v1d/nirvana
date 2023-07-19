@@ -43,7 +43,13 @@ int main() {
     load_file("cl/defun.lisp", environment);
     std::cout << load_file("cl/test.lisp", environment) << std::endl;
 
-    load_file("cl/ansi-test/doit.lsp", environment);
+    try {
+      load_file("cl/ansi-test/doit.lsp", environment);
+
+      std::cout << "ansi tests succeeded!" << std::endl;
+    } catch (std::exception &e) {
+      std::cerr << "ansi tests failed." << std::endl;
+    }
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
   }
