@@ -31,20 +31,37 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/DynamicBindings.h
         src/BuiltinFunction.cpp
         src/BuiltinFunction.h
-        src/Function.h
-        src/Function.cpp
+        src/call_function.h
+        src/call_function.cpp
         src/errors.h
         src/errors.cpp
         src/OrdinaryLambdaList.cpp
         src/OrdinaryLambdaList.h
         src/Lambda.cpp
         src/Lambda.h
-        src/String.cpp
-        src/String.h
+        src/LispString.cpp
+        src/LispString.h
         src/MacroFunction.cpp
         src/MacroFunction.h
-        src/Block.cpp
-        src/Block.h
+        src/LexicalBlock.cpp
+        src/LexicalBlock.h
         src/Frame.cpp
         src/Frame.h
+        src/special_operators.h
+        src/special_operators.cpp
+        src/special_operators/backquote.cpp
+        src/special_operators/block.cpp
+        src/special_operators/catch.cpp
+        src/special_operators/function.cpp
+        src/special_operators/if.cpp
+        src/special_operators/let.cpp
+        src/special_operators/quote.cpp
+        src/special_operators/return_from.cpp
+        src/special_operators/setq.cpp
+        src/special_operators/throw.cpp
+        src/special_operators/unwind_protect.cpp
+)
+
+target_include_directories(nirvana PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )

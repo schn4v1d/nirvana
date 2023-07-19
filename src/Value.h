@@ -12,7 +12,7 @@ union Value {
 
   explicit operator bool() const;
 
-  bool operator<(const Value& other) const;
+  bool operator<(const Value &other) const;
 };
 
 const std::uint64_t TAG_MASK = 0b11;
@@ -46,3 +46,13 @@ std::string print_to_string(const Value &value);
 bool operator==(Value lhs, Value rhs);
 
 } // namespace lisp
+
+namespace std {
+
+template <> struct hash<lisp::Value> {
+  std::size_t operator()(const lisp::Value &v) const {
+    return hash<std::uint64_t>{}(v.tag);
+  }
+};
+
+} // namespace std

@@ -1,7 +1,7 @@
 #include "reader.h"
 #include "Cons.h"
+#include "LispString.h"
 #include "Package.h"
-#include "String.h"
 #include "eval.h"
 #include "util.h"
 

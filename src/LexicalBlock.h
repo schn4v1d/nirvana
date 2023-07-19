@@ -1,17 +1,18 @@
 #pragma once
 
-#include "Frame.h"
 #include "Object.h"
 #include <csetjmp>
 
 namespace lisp {
 
-class Block : public Object {
+class Frame;
+
+class LexicalBlock : public Object {
   Value name;
   Frame *frame;
 
 public:
-  explicit Block(Value name, Frame *frame);
+  explicit LexicalBlock(Value name, Frame *frame);
 
   void trace(bool marking) override;
 
@@ -23,8 +24,8 @@ public:
 };
 
 bool is_block(Value value);
-Block *get_block(Value value);
-Block *make_block(Value name, Frame *frame);
+LexicalBlock *get_block(Value value);
+LexicalBlock *make_block(Value name, Frame *frame);
 Value make_block_v(Value name, Frame *frame);
 
 } // namespace lisp

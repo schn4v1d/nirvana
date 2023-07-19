@@ -1,9 +1,15 @@
 #include "Environment.h"
 #include "Binding.h"
-#include "Block.h"
 #include "Cons.h"
+#include "DynamicBindings.h"
+#include "Frame.h"
 #include "GarbageCollector.h"
+#include "Lambda.h"
+#include "LexicalBlock.h"
+#include "OrdinaryLambdaList.h"
 #include "Symbol.h"
+#include "cl_fun.h"
+#include "errors.h"
 
 namespace lisp {
 
@@ -36,7 +42,7 @@ Value Environment::lookup_variable(Value name) {
   return lookup_value(name, lexical_variables);
 }
 
-Value Environment::lookup_function(Value name) {
+Value Environment::lookup_lexical_function(Value name) {
   return lookup_value(name, lexical_functions);
 }
 
@@ -47,7 +53,7 @@ Value Environment::lookup_special(Value name) {
 Value Environment::lookup_block(Value name) {
   Value result = iter_list(
       [name](Value blockv) -> std::optional<Value> {
-        Block *block = get_block(blockv);
+        LexicalBlock *block = get_block(blockv);
         if (block->get_name() == name) {
           return blockv;
         } else {
@@ -104,8 +110,8 @@ void Environment::assign_variable(Value name, Value value) {
   }
 }
 
-Block *Environment::establish_block(Value name) {
-  Block *block =
+LexicalBlock *Environment::establish_block(Value name) {
+  LexicalBlock *block =
       make_block(name, dynamic_bindings->push_frame(BlockFrame{name}));
   blocks = make_cons_v(block->make_value(), blocks);
   return block;
@@ -121,6 +127,31 @@ Frame *Environment::establish_catch(Value tag) {
 
 void Environment::unwind(Frame *frame, bool inclusive) {
   dynamic_bindings->unwind(frame, inclusive);
+}
+
+Value Environment::get_function(Value op) {
+  if (is_symbol(op)) {
+    Value function = lookup_lexical_function(op);
+
+    if (is_unbound(function)) {
+      Symbol *name = get_symbol(op);
+
+      if (name->is_fbound()) {
+        function = name->get_function();
+      } else {
+        throw UndefinedFunction{name->get_name()};
+      }
+    }
+
+    return function;
+  } else if (is_cons(op) && cl::car(op) == SYM_LAMBDA) {
+    OrdinaryLambdaList lambda_list{cl::second(op)};
+    Value body = cl::cddr(op);
+
+    return make_lambda_v(std::move(lambda_list), this, body);
+  } else {
+    throw std::exception{"invalid function"};
+  }
 }
 
 bool is_environment(Value value) {

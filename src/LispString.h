@@ -1,14 +1,15 @@
 #pragma once
 
 #include "Object.h"
+#include <string>
 
 namespace lisp {
 
-class String: public Object {
+class LispString : public Object {
   std::string content;
 
 public:
-  explicit String(std::string content);
+  explicit LispString(std::string content);
 
   void trace(bool marking) override;
 
@@ -17,8 +18,8 @@ public:
 };
 
 bool is_string(Value value);
-String *get_string(Value value);
-String *make_string(std::string content);
+LispString *get_string(Value value);
+LispString *make_string(std::string content);
 Value make_string_v(std::string content);
 
 } // namespace lisp

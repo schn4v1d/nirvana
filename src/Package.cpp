@@ -1,6 +1,6 @@
 #include "Package.h"
 #include "GarbageCollector.h"
-#include "String.h"
+#include "LispString.h"
 #include "cl_fun.h"
 #include "util.h"
 #include <cassert>
@@ -143,7 +143,7 @@ Value find_package(Value arg) {
     return arg;
   }
 
-  String *name = get_string(cl::string(arg));
+  LispString *name = get_string(cl::string(arg));
 
   auto it = packages.find(name->get_content());
 

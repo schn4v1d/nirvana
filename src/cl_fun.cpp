@@ -1,6 +1,6 @@
 #include "cl_fun.h"
 #include "Cons.h"
-#include "String.h"
+#include "LispString.h"
 #include "Symbol.h"
 #include <cassert>
 
