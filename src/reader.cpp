@@ -122,6 +122,23 @@ void init_reader_macros() {
     return make_cons_v(SYM_QUOTE, make_cons_v(quote, NIL));
   };
 
+  reader_macros['"'] = [](std::istringstream &input, char _, Environment *env) {
+    std::ostringstream oss{};
+
+    char c = (char)input.get();
+    while (c != '"') {
+      if (c == '\\') {
+        c = (char)input.get();
+      }
+
+      oss << c;
+
+      c = (char)input.get();
+    }
+
+    return make_string_v(oss.str());
+  };
+
   reader_macros[','] = [](std::istringstream &input, char _, Environment *env) {
     bool splicing{false};
     if (input.peek() == '@') {
