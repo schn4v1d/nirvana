@@ -10,11 +10,8 @@
 
 using namespace lisp;
 
-Value load_file(const char *file_name, Environment *env) {
-  std::ifstream t{file_name};
-  std::stringstream buffer;
-  buffer << t.rdbuf();
-  std::istringstream input_stream{buffer.str()};
+Value execute(std::string_view code, Environment *env) {
+  std::istringstream input_stream{code.data()};
 
   Value result = NIL;
 
@@ -39,15 +36,15 @@ int main() {
 
     Environment *environment = make_environment();
 
-    load_file("cl/core.lisp", environment);
-    load_file("cl/defun.lisp", environment);
-    std::cout << load_file("cl/test.lisp", environment) << std::endl;
+    execute("(load \"cl/core.lisp\")", environment);
+    std::cout << execute("(load \"cl/test.lisp\")", environment) << std::endl;
 
     try {
-      load_file("cl/ansi-test/doit.lsp", environment);
+      execute("(load \"cl/ansi-test/doit.lsp\")", environment);
 
       std::cout << "ansi tests succeeded!" << std::endl;
     } catch (std::exception &e) {
+      std::cerr << e.what() << std::endl;
       std::cerr << "ansi tests failed." << std::endl;
     }
   } catch (std::exception &e) {

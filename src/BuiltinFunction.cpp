@@ -9,6 +9,10 @@
 #include "String.h"
 #include "Symbol.h"
 #include "cl_fun.h"
+#include "eval.h"
+#include "reader.h"
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <utility>
@@ -41,6 +45,8 @@ BuiltinFunction *make_builtin_function(std::function<Value(Value)> function) {
 Value make_builtin_function_v(std::function<Value(Value)> function) {
   return make_builtin_function(std::move(function))->make_value();
 }
+
+static std::filesystem::path current_path{std::filesystem::current_path()};
 
 void init_builtin_functions() {
   get_symbol(PKG_CL->intern("CONS", true))
@@ -210,6 +216,41 @@ void init_builtin_functions() {
         std::cout << obj << std::endl;
 
         return NIL;
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("LOAD"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        std::filesystem::path old = current_path;
+
+        if (std::filesystem::is_directory(current_path)) {
+          current_path = current_path / get_string(cl::car(args))->get_content();
+        } else {
+          current_path = current_path.parent_path() / get_string(cl::car(args))->get_content();
+        }
+
+        std::ifstream t{current_path};
+        if (!t.is_open()) {
+          throw std::exception("invalid load path");
+        }
+        std::stringstream buffer;
+        buffer << t.rdbuf();
+        std::istringstream input_stream{buffer.str()};
+
+        Value result = NIL;
+
+        Environment *env = make_environment();
+
+        try {
+          while (true) {
+            Value v = read(input_stream, env);
+            result = eval(v, env);
+          }
+        } catch (ReadEndOfFile &e) {
+        }
+
+        current_path = old;
+
+        return result;
       }));
 }
 

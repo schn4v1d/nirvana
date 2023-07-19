@@ -10,7 +10,9 @@ namespace lisp {
 DynamicBindings *dynamic_bindings;
 
 Environment::Environment() : Environment{nullptr} {
-  lisp::dynamic_bindings = make_dynamic_bindings();
+  if (lisp::dynamic_bindings == nullptr) {
+    lisp::dynamic_bindings = make_dynamic_bindings();
+  }
   dynamic_bindings = lisp::dynamic_bindings;
 }
 
