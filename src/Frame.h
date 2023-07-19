@@ -30,7 +30,18 @@ struct UnwindProtectFrame {
   void trace(bool marking);
 };
 
-using FrameData = std::variant<BlockFrame, UnwindProtectFrame>;
+struct CatchFrame {
+  Value tag;
+  Value return_value{NIL};
+  std::jmp_buf jmp_buf{};
+
+  explicit CatchFrame(Value tag);
+
+  void unwind();
+  void trace(bool marking);
+};
+
+using FrameData = std::variant<BlockFrame, UnwindProtectFrame, CatchFrame>;
 
 class Frame : public Object {
   FrameData data;
@@ -47,6 +58,9 @@ public:
 
   [[nodiscard]] bool is_unwind_protect() const;
   [[nodiscard]] UnwindProtectFrame &get_unwind_protect();
+
+  [[nodiscard]] bool is_catch() const;
+  [[nodiscard]] CatchFrame &get_catch();
 };
 
 bool is_frame(Value value);

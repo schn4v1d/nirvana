@@ -22,12 +22,14 @@ public:
   Value lookup_function(Value name);
   Value lookup_special(Value name);
   Value lookup_block(Value name);
+  Frame *lookup_catch(Value tag);
   void bind_lexical_variable(Value name, Value value, bool special = false);
   void bind_lexical_function(Value name, Value value, bool special = false);
   bool is_lexical_special(Value name);
   void assign_variable(Value name, Value value);
   Block *establish_block(Value name);
   Frame *establish_unwind_protect(Value cleanup_forms);
+  Frame *establish_catch(Value tag);
   void unwind(Frame *frame, bool inclusive = true);
 };
 

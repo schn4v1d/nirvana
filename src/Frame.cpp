@@ -31,6 +31,15 @@ void UnwindProtectFrame::trace(bool marking) {
   trace_value(env->make_value(), marking);
 }
 
+CatchFrame::CatchFrame(Value tag) : tag{tag} {}
+
+void CatchFrame::unwind() {}
+
+void CatchFrame::trace(bool marking) {
+  trace_value(tag, marking);
+  trace_value(return_value, marking);
+}
+
 Frame::Frame(FrameData data) : Object{OBJ_FRAME}, data{data} {}
 
 void Frame::trace(bool marking) {
@@ -56,6 +65,12 @@ UnwindProtectFrame &Frame::get_unwind_protect() {
   return std::get<UnwindProtectFrame>(data);
 }
 
+bool Frame::is_catch() const {
+  return std::holds_alternative<CatchFrame>(data);
+}
+
+CatchFrame &Frame::get_catch() { return std::get<CatchFrame>(data); }
+
 bool is_frame(Value value) {
   if (is_object(value)) {
     return get_object(value)->get_tag() == OBJ_FRAME;
@@ -68,12 +83,8 @@ Frame *get_frame(Value value) {
   return reinterpret_cast<Frame *>(get_object(value));
 }
 
-Frame *make_frame(FrameData data) {
-  return make_object<Frame>(data);
-}
+Frame *make_frame(FrameData data) { return make_object<Frame>(data); }
 
-Value make_frame_v(FrameData data) {
-  return make_frame(data)->make_value();
-}
+Value make_frame_v(FrameData data) { return make_frame(data)->make_value(); }
 
 } // namespace lisp

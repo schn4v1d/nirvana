@@ -18,6 +18,7 @@ public:
   Value checkpoint();
   Value lookup_value(Value name);
   Binding *lookup_binding(Value name);
+  Frame *lookup_catch(Value tag);
   void push_binding(Value name, Value value);
   void restore_checkpoint(Value checkpoint);
   Frame *push_frame(FrameData data);

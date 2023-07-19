@@ -42,14 +42,14 @@ Value get_function(Value op, Environment *env) {
 }
 
 std::unordered_map<Symbol *, std::function<Value(Value args, Environment *env)>>
-    special_forms{};
+    special_operators{};
 
 void init_eval() {
   Symbol *current_package = get_symbol(SYM_STAR_PACKAGE_STAR);
   current_package->declare_special();
   current_package->set_value(PKG_CL_USER->make_value());
 
-  special_forms.insert(std::make_pair(
+  special_operators.insert(std::make_pair(
       get_symbol(SYM_BACKQUOTE), [](Value args, Environment *env) {
         std::function<std::vector<Value>(Value)> process_form =
             [&](Value form) -> std::vector<Value> {
@@ -91,7 +91,7 @@ void init_eval() {
         return process_form(cl::car(args))[0];
       }));
 
-  special_forms.insert(std::make_pair(
+  special_operators.insert(std::make_pair(
       get_symbol(SYM_BLOCK), [](Value args, Environment *parent) {
         Value result{NIL};
 
@@ -117,7 +117,31 @@ void init_eval() {
         return result;
       }));
 
-  special_forms.insert(
+  special_operators.insert(
+      std::make_pair(get_symbol(SYM_CATCH), [](Value args, Environment *env) {
+        Value result{NIL};
+
+        Value tag = eval(cl::car(args), env);
+
+        Frame *frame = env->establish_catch(tag);
+
+        Value body = cl::cdr(args);
+
+        if (setjmp(frame->get_catch().jmp_buf) == 0) {
+          while (!is_nil(body)) {
+            result = eval(cl::car(body), env);
+            body = cl::cdr(body);
+          }
+        } else {
+          result = frame->get_catch().return_value;
+        }
+
+        env->unwind(frame);
+
+        return result;
+      }));
+
+  special_operators.insert(
       std::make_pair(get_symbol(SYM_IF), [](Value args, Environment *env) {
         Value condition_form = cl::first(args);
         Value then_form = cl::second(args);
@@ -132,14 +156,14 @@ void init_eval() {
         }
       }));
 
-  special_forms.insert(std::make_pair(get_symbol(SYM_FUNCTION),
-                                      [](Value args, Environment *env) {
-                                        Value designator = cl::car(args);
+  special_operators.insert(std::make_pair(
+      get_symbol(SYM_FUNCTION), [](Value args, Environment *env) {
+        Value designator = cl::car(args);
 
-                                        return get_function(designator, env);
-                                      }));
+        return get_function(designator, env);
+      }));
 
-  special_forms.insert(
+  special_operators.insert(
       std::make_pair(get_symbol(SYM_LET), [](Value args, Environment *parent) {
         Value var_list = cl::car(args);
         Value body = cl::cdr(args);
@@ -172,7 +196,7 @@ void init_eval() {
         return result;
       }));
 
-  special_forms.insert(std::make_pair(
+  special_operators.insert(std::make_pair(
       get_symbol(SYM_LET_STAR), [](Value args, Environment *parent) {
         Value var_list = cl::car(args);
         Value body = cl::cdr(args);
@@ -205,12 +229,12 @@ void init_eval() {
         return result;
       }));
 
-  special_forms.insert(
+  special_operators.insert(
       std::make_pair(get_symbol(SYM_QUOTE), [](Value args, Environment *env) {
         return cl::car(args);
       }));
 
-  special_forms.insert(std::make_pair(
+  special_operators.insert(std::make_pair(
       get_symbol(SYM_RETURN_FROM), [](Value args, Environment *env) {
         Value block_name = cl::first(args);
 
@@ -234,7 +258,7 @@ void init_eval() {
         return NIL;
       }));
 
-  special_forms.insert(
+  special_operators.insert(
       std::make_pair(get_symbol(SYM_SETQ), [](Value args, Environment *env) {
         Value value{};
 
@@ -255,7 +279,30 @@ void init_eval() {
         return value;
       }));
 
-  special_forms.insert(std::make_pair(
+  special_operators.insert(
+      std::make_pair(get_symbol(SYM_THROW), [](Value args, Environment *env) {
+        Value tag = eval(cl::first(args), env);
+
+        Frame *frame = env->lookup_catch(tag);
+
+        if (!frame) {
+          std::ostringstream oss{};
+          oss << "attempt to throw to a tag that does not exit: " << tag;
+          throw std::runtime_error{oss.str()};
+        }
+
+        Value return_value = eval(cl::second(args), env);
+
+        frame->get_catch().return_value = return_value;
+
+        env->unwind(frame, false);
+
+        longjmp(frame->get_catch().jmp_buf, 1);
+
+        return NIL;
+      }));
+
+  special_operators.insert(std::make_pair(
       get_symbol(SYM_UNWIND_PROTECT), [](Value args, Environment *env) {
         Value protected_form = cl::car(args);
         Value cleanup_forms = cl::cdr(args);
@@ -277,8 +324,8 @@ Value eval(Value value, Environment *env) {
     Value op = cons->get_car();
 
     if (is_symbol(op)) {
-      auto special_form = special_forms.find(get_symbol(op));
-      if (special_form != special_forms.end()) {
+      auto special_form = special_operators.find(get_symbol(op));
+      if (special_form != special_operators.end()) {
         return (*special_form).second(cons->get_cdr(), env);
       }
     }

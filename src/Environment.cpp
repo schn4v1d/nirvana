@@ -63,6 +63,10 @@ Value Environment::lookup_block(Value name) {
   }
 }
 
+Frame *Environment::lookup_catch(Value tag) {
+  return dynamic_bindings->lookup_catch(tag);
+}
+
 void Environment::bind_lexical_variable(Value name, Value value, bool special) {
   lexical_variables =
       make_cons_v(make_binding_v(name, value, special), lexical_variables);
@@ -109,6 +113,10 @@ Block *Environment::establish_block(Value name) {
 
 Frame *Environment::establish_unwind_protect(Value cleanup_forms) {
   return dynamic_bindings->push_frame(UnwindProtectFrame{cleanup_forms, this});
+}
+
+Frame *Environment::establish_catch(Value tag) {
+  return dynamic_bindings->push_frame(CatchFrame{tag});
 }
 
 void Environment::unwind(Frame *frame, bool inclusive) {

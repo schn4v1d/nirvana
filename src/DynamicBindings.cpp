@@ -33,6 +33,25 @@ Binding *DynamicBindings::lookup_binding(Value name) {
   return lisp::lookup_binding(name, bindings);
 }
 
+Frame *DynamicBindings::lookup_catch(Value tag) {
+  Value result = iter_list(
+      [tag](Value framev) -> std::optional<Value> {
+        Frame *frame = get_frame(framev);
+        if (frame->is_catch() && frame->get_catch().tag == tag) {
+          return framev;
+        } else {
+          return std::nullopt;
+        }
+      },
+      frames);
+
+  if (is_unbound(result)) {
+    return nullptr;
+  } else {
+    return get_frame(result);
+  }
+}
+
 Frame *DynamicBindings::push_frame(FrameData data) {
   Frame *frame = make_frame(data);
   frames = make_cons_v(frame->make_value(), frames);

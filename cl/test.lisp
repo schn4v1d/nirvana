@@ -12,7 +12,6 @@
            #'(lambda (args env)
                `#'(lambda ,(car args) ,@(cdr args))))
 
- (block nil
-   (let ((x 5))
-     (unwind-protect (return-from nil)
-       (print x))))
+(catch nil
+  (throw nil 1)
+  2)
