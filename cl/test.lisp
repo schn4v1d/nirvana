@@ -133,6 +133,7 @@
            #'(lambda (args env)
                `#'(lambda ,(car args) ,@(cdr args))))
 
-(block nil
-  (unwind-protect (return-from nil 1)
-    (return-from nil 2)))
+ (block nil
+   (let ((x 5))
+     (unwind-protect (return-from nil)
+       (print x))))

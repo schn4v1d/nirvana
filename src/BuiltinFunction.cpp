@@ -9,6 +9,7 @@
 #include "String.h"
 #include "Symbol.h"
 #include "cl_fun.h"
+#include <iostream>
 #include <sstream>
 #include <utility>
 
@@ -200,6 +201,15 @@ void init_builtin_functions() {
         get_symbol(name)->set_function(make_macro_function_v(lambda));
 
         return name;
+      }));
+
+  get_symbol(PKG_CL->add_external_symbol("PRINT"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Value obj = cl::car(args);
+
+        std::cout << obj << std::endl;
+
+        return NIL;
       }));
 }
 

@@ -213,12 +213,13 @@ void init_eval() {
   special_forms.insert(std::make_pair(
       get_symbol(SYM_RETURN_FROM), [](Value args, Environment *env) {
         Value block_name = cl::first(args);
+
         Value return_value = eval(cl::second(args), env);
 
         Value blockv = env->lookup_block(block_name);
         if (is_nil(blockv)) {
           std::ostringstream oss{};
-          oss << "no block named " << block_name << "in current environment";
+          oss << "no block named " << block_name << " in current environment";
           throw std::runtime_error{oss.str()};
         }
 

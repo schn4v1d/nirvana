@@ -14,11 +14,12 @@ Environment::Environment() : Environment{nullptr} {
   dynamic_bindings = lisp::dynamic_bindings;
 }
 
-Environment::Environment(Environment *parent)
-    : Object{OBJ_ENVIRONMENT}, dynamic_bindings{lisp::dynamic_bindings} {
+Environment::Environment(Environment *parent) : Object{OBJ_ENVIRONMENT} {
   if (parent) {
     lexical_variables = parent->lexical_variables;
     lexical_functions = parent->lexical_functions;
+    dynamic_bindings = parent->dynamic_bindings;
+    blocks = parent->blocks;
   }
 }
 
