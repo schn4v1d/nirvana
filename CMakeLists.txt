@@ -45,4 +45,6 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/MacroFunction.h
         src/Block.cpp
         src/Block.h
+        src/Frame.cpp
+        src/Frame.h
 )

@@ -33,6 +33,30 @@ Binding *DynamicBindings::lookup_binding(Value name) {
   return lisp::lookup_binding(name, bindings);
 }
 
+Frame *DynamicBindings::push_frame(FrameData data) {
+  Frame *frame = make_frame(data);
+  frames = make_cons_v(frame->make_value(), frames);
+  return frame;
+}
+
+void DynamicBindings::unwind(Frame *frame, bool inclusive) {
+  while (!is_nil(frames)) {
+    Frame *current = get_frame(cl::car(frames));
+
+    if (!inclusive && current == frame) {
+      break;
+    }
+
+    frames = cl::cdr(frames);
+
+    current->unwind();
+
+    if (current == frame) {
+      break;
+    }
+  }
+}
+
 bool is_dynamic_bindings(Value value) {
   if (is_object(value)) {
     return get_object(value)->get_tag() == OBJ_DYNAMIC_BINDINGS;

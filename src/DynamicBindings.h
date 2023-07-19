@@ -1,12 +1,14 @@
 #pragma once
 
 #include "Binding.h"
+#include "Frame.h"
 #include "Object.h"
 
 namespace lisp {
 
 class DynamicBindings: public Object {
   Value bindings{NIL};
+  Value frames{NIL};
 
 public:
   DynamicBindings();
@@ -18,6 +20,8 @@ public:
   Binding *lookup_binding(Value name);
   void push_binding(Value name, Value value);
   void restore_checkpoint(Value checkpoint);
+  Frame *push_frame(FrameData data);
+  void unwind(Frame *frame, bool inclusive = true);
 };
 
 bool is_dynamic_bindings(Value value);

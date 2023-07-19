@@ -112,6 +112,8 @@ void init_eval() {
           result = block->get_return_value();
         }
 
+        env->unwind(block->get_frame());
+
         return result;
       }));
 
@@ -224,7 +226,7 @@ void init_eval() {
 
         block->set_return_value(return_value);
 
-        // TODO handle unwind-protect
+        env->unwind(block->get_frame(), false);
 
         longjmp(*block->get_jmp_buf(), 1);
 
@@ -250,6 +252,20 @@ void init_eval() {
         }
 
         return value;
+      }));
+
+  special_forms.insert(std::make_pair(
+      get_symbol(SYM_UNWIND_PROTECT), [](Value args, Environment *env) {
+        Value protected_form = cl::car(args);
+        Value cleanup_forms = cl::cdr(args);
+
+        Frame *frame = env->establish_unwind_protect(cleanup_forms);
+
+        Value result = eval(protected_form, env);
+
+        env->unwind(frame);
+
+        return result;
       }));
 }
 

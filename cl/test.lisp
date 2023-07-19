@@ -133,8 +133,6 @@
            #'(lambda (args env)
                `#'(lambda ,(car args) ,@(cdr args))))
 
-(defun temp (x)
-  (if x (return-from temp 'dummy))
-  44)
-
-(temp t)
+(block nil
+  (unwind-protect (return-from nil 1)
+    (return-from nil 2)))

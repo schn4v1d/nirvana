@@ -10,6 +10,7 @@ class Environment : public Object {
   Value lexical_variables{NIL};
   Value lexical_functions{NIL};
   Value blocks{NIL};
+  DynamicBindings *dynamic_bindings;
 
 public:
   explicit Environment();
@@ -26,6 +27,8 @@ public:
   bool is_lexical_special(Value name);
   void assign_variable(Value name, Value value);
   Block *establish_block(Value name);
+  Frame *establish_unwind_protect(Value cleanup_forms);
+  void unwind(Frame *frame, bool inclusive = true);
 };
 
 bool is_environment(Value value);

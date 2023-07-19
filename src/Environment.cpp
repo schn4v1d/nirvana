@@ -10,10 +10,12 @@ namespace lisp {
 DynamicBindings *dynamic_bindings;
 
 Environment::Environment() : Environment{nullptr} {
-  dynamic_bindings = make_dynamic_bindings();
+  lisp::dynamic_bindings = make_dynamic_bindings();
+  dynamic_bindings = lisp::dynamic_bindings;
 }
 
-Environment::Environment(Environment *parent) : Object{OBJ_ENVIRONMENT} {
+Environment::Environment(Environment *parent)
+    : Object{OBJ_ENVIRONMENT}, dynamic_bindings{lisp::dynamic_bindings} {
   if (parent) {
     lexical_variables = parent->lexical_variables;
     lexical_functions = parent->lexical_functions;
@@ -96,9 +98,18 @@ void Environment::assign_variable(Value name, Value value) {
 }
 
 Block *Environment::establish_block(Value name) {
-  Block *block = make_block(name);
+  Block *block =
+      make_block(name, dynamic_bindings->push_frame(BlockFrame{name}));
   blocks = make_cons_v(block->make_value(), blocks);
   return block;
+}
+
+Frame *Environment::establish_unwind_protect(Value cleanup_forms) {
+  return dynamic_bindings->push_frame(UnwindProtectFrame{cleanup_forms, this});
+}
+
+void Environment::unwind(Frame *frame, bool inclusive) {
+  dynamic_bindings->unwind(frame, inclusive);
 }
 
 bool is_environment(Value value) {
