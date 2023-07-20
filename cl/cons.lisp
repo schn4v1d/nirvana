@@ -1,10 +1,25 @@
 (in-package common-lisp)
 
-(export '(endp caar cadr cdar cddr caaar caadr cadar caddr cdaar
-          cdadr cddar cdddr caaaar caaadr caadar caaddr cadaar
-          cadadr caddar cadddr cdaaar cdaadr cdadar cdaddr cddaar
-          cddadr cdddar cddddr first second third fourth fifth
-          sixth seventh eighth ninth tenth))
+(export '(cons consp null car cdr caar cadr cdar cddr caaar caadr
+          cadar caddr cdaar cdadr cddar cdddr caaaar caaadr caadar
+          caaddr cadaar cadadr caddar cadddr cdaaar cdaadr cdadar
+          cdaddr cddaar cddadr cdddar cddddr first second third
+          fourth fifth sixth seventh eighth ninth tenth endp))
+
+(defun cons (car cdr)
+  (nirvana-builtins:%cons car cdr))
+
+(defun consp (x)
+  (nirvana-builtins:%consp x))
+
+(defun null (x)
+  (nirvana-builtins:%null x))
+
+(defun car (x)
+  (nirvana-builtins:%car x))
+
+(defun cdr (x)
+  (nirvana-builtins:%cdr x))
 
 (defun caar (x)
   (car (car x)))

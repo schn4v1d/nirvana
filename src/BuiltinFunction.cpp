@@ -49,12 +49,12 @@ Value make_builtin_function_v(std::function<Value(Value)> function) {
 static std::filesystem::path current_path{std::filesystem::current_path()};
 
 void init_builtin_functions() {
-  get_symbol(PKG_CL->intern("CONS", true))
+  get_symbol(PKG_NIRVANA_BUILTINS->intern("%CONS", true))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         return make_cons_v(cl::first(args), cl::second(args));
       }));
 
-  get_symbol(PKG_CL->intern("CONSP", true))
+  get_symbol(PKG_NIRVANA_BUILTINS->intern("%CONSP", true))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         if (is_cons(cl::first(args))) {
           return T;
@@ -63,7 +63,7 @@ void init_builtin_functions() {
         }
       }));
 
-  get_symbol(PKG_CL->intern("NULL", true))
+  get_symbol(PKG_NIRVANA_BUILTINS->intern("%NULL", true))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         if (is_nil(cl::first(args))) {
           return T;
@@ -72,11 +72,11 @@ void init_builtin_functions() {
         }
       }));
 
-  get_symbol(PKG_CL->intern("CAR", true))
+  get_symbol(PKG_NIRVANA_BUILTINS->intern("%CAR", true))
       ->set_function(make_builtin_function_v(
           [](Value args) -> Value { return cl::car(cl::first(args)); }));
 
-  get_symbol(PKG_CL->intern("CDR", true))
+  get_symbol(PKG_NIRVANA_BUILTINS->intern("%CDR", true))
       ->set_function(make_builtin_function_v(
           [](Value args) -> Value { return cl::cdr(cl::first(args)); }));
 
