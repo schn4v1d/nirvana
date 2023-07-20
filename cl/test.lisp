@@ -12,5 +12,4 @@
            #'(lambda (args env)
                `#'(lambda ,(car args) ,@(cdr args))))
 
-(dolist (v '(1 2 3 4) 'end)
-  (print v))
+(list)

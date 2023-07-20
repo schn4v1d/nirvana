@@ -64,6 +64,7 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/special_operators/go.cpp
         src/GoTag.cpp
         src/GoTag.h
+        src/special_operators/progn.cpp
 )
 
 target_include_directories(nirvana PRIVATE

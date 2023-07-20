@@ -1,10 +1,12 @@
 (in-package common-lisp)
 
-(export '(cons consp null car cdr caar cadr cdar cddr caaar caadr
-          cadar caddr cdaar cdadr cddar cdddr caaaar caaadr caadar
-          caaddr cadaar cadadr caddar cadddr cdaaar cdaadr cdadar
-          cdaddr cddaar cddadr cdddar cddddr first second third
-          fourth fifth sixth seventh eighth ninth tenth endp))
+(export
+  '(cons consp null car cdr caar cadr cdar cddr caaar caadr
+         cadar caddr cdaar cdadr cddar cdddr caaaar caaadr caadar
+         caaddr cadaar cadadr caddar cadddr cdaaar cdaadr cdadar
+         cdaddr cddaar cddadr cdddar cddddr first second third
+         fourth fifth sixth seventh eighth ninth tenth endp list
+         rplaca rplacd))
 
 (defun cons (car cdr)
   (nirvana-builtins:%cons car cdr))
@@ -20,6 +22,12 @@
 
 (defun cdr (x)
   (nirvana-builtins:%cdr x))
+
+(defun rplaca (cons object)
+  (nirvana-builtins:%rplaca cons object))
+
+(defun rplacd (cons object)
+  (nirvana-builtins:%rplacd cons object))
 
 (defun caar (x)
   (car (car x)))
@@ -137,3 +145,14 @@
 
 (defun endp (list)
   (null list))
+
+(defun list (&rest objects)
+  (let (result
+        current)
+    (dolist (x objects result)
+      (if (null current)
+          (setq result (cons x nil)
+                current result)
+          (let ((new (cons x nil)))
+            (rplacd current new)
+            (setq current new))))))

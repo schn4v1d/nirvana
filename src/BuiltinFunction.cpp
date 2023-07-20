@@ -80,6 +80,20 @@ void init_builtin_functions() {
       ->set_function(make_builtin_function_v(
           [](Value args) -> Value { return cl::cdr(cl::first(args)); }));
 
+  get_symbol(PKG_NIRVANA_BUILTINS->intern("%RPLACA", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Cons *cons = get_cons(cl::car(args));
+        cons->set_car(cl::second(args));
+        return cons->make_value();
+      }));
+
+  get_symbol(PKG_NIRVANA_BUILTINS->intern("%RPLACD", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Cons *cons = get_cons(cl::car(args));
+        cons->set_cdr(cl::second(args));
+        return cons->make_value();
+      }));
+
   get_symbol(PKG_CL->intern("INTEGERP", true))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         if (is_integer(cl::first(args))) {
@@ -223,9 +237,11 @@ void init_builtin_functions() {
         std::filesystem::path old = current_path;
 
         if (std::filesystem::is_directory(current_path)) {
-          current_path = current_path / get_string(cl::car(args))->get_content();
+          current_path =
+              current_path / get_string(cl::car(args))->get_content();
         } else {
-          current_path = current_path.parent_path() / get_string(cl::car(args))->get_content();
+          current_path = current_path.parent_path() /
+                         get_string(cl::car(args))->get_content();
         }
 
         std::ifstream t{current_path};

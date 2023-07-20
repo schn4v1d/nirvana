@@ -120,7 +120,10 @@ OrdinaryLambdaList::OrdinaryLambdaList(Value arguments) {
         } else if (v == SYM_AND_AUX) {
           read_mode = read_mode::aux;
         } else if (is_symbol(v)) {
-          throw NotImplemented();
+          if (rest.has_value()) {
+            throw std::exception{"invalid &rest syntax"};
+          }
+          rest = get_symbol(v);
         } else {
           throw std::exception{"non-symbol in lambda list"};
         }
@@ -184,6 +187,10 @@ void OrdinaryLambdaList::bind_arguments(Value argsv, Environment *env) {
         if (suppliedp.has_value()) {
           env->bind_lexical_variable(suppliedp.value()->make_value(), T);
         }
+      } else {
+        if (i - required.size() == optional.size() && rest.has_value()) {
+          env->bind_lexical_variable(rest.value()->make_value(), it.value);
+        }
       }
     }
   }
@@ -205,6 +212,11 @@ void OrdinaryLambdaList::bind_arguments(Value argsv, Environment *env) {
       }
     }
   }
+
+  if (i - required.size() == optional.size() && rest.has_value()) {
+    env->bind_lexical_variable(rest.value()->make_value(), NIL);
+  }
+
 }
 
 } // namespace lisp

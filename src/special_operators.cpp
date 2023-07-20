@@ -28,7 +28,7 @@ void init_special_operators() {
       {SYM_MACROLET, not_implemented},
       {SYM_MULTIPLE_VALUE_CALL, not_implemented},
       {SYM_MULTIPLE_VALUE_PROG1, not_implemented},
-      {SYM_PROGN, not_implemented},
+      {SYM_PROGN, special_operators::op_progn},
       {SYM_PROGV, not_implemented},
       {SYM_QUOTE, special_operators::op_quote},
       {SYM_RETURN_FROM, special_operators::op_return_from},

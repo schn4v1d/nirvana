@@ -26,6 +26,7 @@ Value op_go(Value args, Environment *env);
 Value op_if(Value args, Environment *env);
 Value op_let(Value args, Environment *env);
 Value op_let_star(Value args, Environment *env);
+Value op_progn(Value args, Environment *env);
 Value op_quote(Value args, Environment *env);
 Value op_return_from(Value args, Environment *env);
 Value op_setq(Value args, Environment *env);
