@@ -2,6 +2,7 @@
 #include "Cons.h"
 #include "GarbageCollector.h"
 #include "Package.h"
+#include "cl_fun.h"
 #include "eval.h"
 #include "reader.h"
 #include <filesystem>
@@ -26,6 +27,72 @@ Value execute(std::string_view code, Environment *env) {
   return result;
 }
 
+void scan_dependencies(Environment *env) {
+  auto load = [&](auto path) {
+    std::ifstream t{path};
+    if (!t.is_open()) {
+      throw std::exception("invalid load path");
+    }
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    std::istringstream input_stream{buffer.str()};
+    std::vector<Value> forms{};
+
+    try {
+      while (true) {
+        forms.push_back(read(input_stream, env));
+      }
+    } catch (ReadEndOfFile &e) {
+    }
+
+    return forms;
+  };
+
+  std::ofstream f{"dependencies.md"};
+
+  f << "```mermaid\nflowchart BT" << std::endl;
+
+  std::function<void(Value, Value)> read_form = [&](Value source, Value form) {
+    if (is_cons(form) && is_symbol(cl::car(form))) {
+      f << "id" << source.tag << "[" << source << "]-->id" << cl::car(form).tag << "[" << cl::car(form) << "]" << std::endl;
+
+      map_list(
+          [&](Value form) {
+            read_form(source, form);
+            return NIL;
+          },
+          cl::cdr(form));
+    }
+  };
+
+  auto read_dependencies = [&](auto forms) {
+    for (Value form : forms) {
+      if (!is_cons(form)) {
+        continue;
+      }
+
+      if (cl::car(form) == SYM_DEFUN) {
+        Value source = cl::cadr(form);
+        form = cl::cdddr(form);
+
+        map_list(
+            [&](Value form) {
+              read_form(source, form);
+
+              return NIL;
+            },
+            form);
+      }
+    }
+  };
+
+  read_dependencies(load("cl/core.lisp"));
+  read_dependencies(load("cl/cons.lisp"));
+  read_dependencies(load("cl/dolist.lisp"));
+
+  f << "```" << std::endl;
+}
+
 int main() {
   try {
     init_packages();
@@ -35,6 +102,8 @@ int main() {
     init_builtin_functions();
 
     Environment *environment = make_environment();
+
+//    scan_dependencies(environment);
 
     execute("(load \"cl/common-lisp.lisp\")", environment);
 
