@@ -54,7 +54,8 @@ void scan_dependencies(Environment *env) {
 
   std::function<void(Value, Value)> read_form = [&](Value source, Value form) {
     if (is_cons(form) && is_symbol(cl::car(form))) {
-      f << "id" << source.tag << "[" << source << "]-->id" << cl::car(form).tag << "[" << cl::car(form) << "]" << std::endl;
+      f << "id" << source.tag << "[" << source << "]-->id" << cl::car(form).tag
+        << "[" << cl::car(form) << "]" << std::endl;
 
       map_list(
           [&](Value form) {
@@ -103,7 +104,9 @@ int main() {
 
     Environment *environment = make_environment();
 
-//    scan_dependencies(environment);
+    get_symbol(SYM_STAR_PACKAGE_STAR)->set_value(PKG_CL->make_value());
+    scan_dependencies(environment);
+    get_symbol(SYM_STAR_PACKAGE_STAR)->set_value(PKG_CL_USER->make_value());
 
     execute("(load \"cl/common-lisp.lisp\")", environment);
 
