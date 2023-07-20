@@ -12,11 +12,5 @@
            #'(lambda (args env)
                `#'(lambda ,(car args) ,@(cdr args))))
 
-(let (val)
-  (tagbody
-    (setq val 2)
-    (go lp)
-    (setq val 4)
-   lp
-    (setq val 3))
-  val)
+(dolist (v '(1 2 3 4) 'end)
+  (print v))
