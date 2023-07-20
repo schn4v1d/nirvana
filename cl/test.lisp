@@ -12,6 +12,11 @@
            #'(lambda (args env)
                `#'(lambda ,(car args) ,@(cdr args))))
 
-(catch nil
-  (throw nil 1)
-  2)
+(let (val)
+  (tagbody
+    (setq val 2)
+    (go lp)
+    (setq val 4)
+   lp
+    (setq val 3))
+  val)

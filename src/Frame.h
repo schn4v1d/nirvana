@@ -3,6 +3,8 @@
 #include "Object.h"
 #include "Value.h"
 #include <csetjmp>
+#include <optional>
+#include <unordered_map>
 #include <variant>
 
 namespace lisp {
@@ -41,7 +43,20 @@ struct CatchFrame {
   void trace(bool marking);
 };
 
-using FrameData = std::variant<BlockFrame, UnwindProtectFrame, CatchFrame>;
+struct TagbodyFrame {
+  std::jmp_buf jmp_buf{};
+  std::unordered_map<Value, int> tags;
+
+  explicit TagbodyFrame(std::unordered_map<Value, int> tags);
+
+  void unwind();
+  void trace(bool marking);
+
+  std::optional<int> get_tag(Value tag);
+};
+
+using FrameData =
+    std::variant<BlockFrame, UnwindProtectFrame, CatchFrame, TagbodyFrame>;
 
 class Frame : public Object {
   FrameData data;
@@ -61,6 +76,9 @@ public:
 
   [[nodiscard]] bool is_catch() const;
   [[nodiscard]] CatchFrame &get_catch();
+
+  [[nodiscard]] bool is_tagbody() const;
+  [[nodiscard]] TagbodyFrame &get_tagbody();
 };
 
 bool is_frame(Value value);

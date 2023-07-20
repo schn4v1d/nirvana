@@ -4,6 +4,7 @@
 #include "DynamicBindings.h"
 #include "Frame.h"
 #include "GarbageCollector.h"
+#include "GoTag.h"
 #include "Lambda.h"
 #include "LexicalBlock.h"
 #include "OrdinaryLambdaList.h"
@@ -28,6 +29,7 @@ Environment::Environment(Environment *parent) : Object{OBJ_ENVIRONMENT} {
     lexical_functions = parent->lexical_functions;
     dynamic_bindings = parent->dynamic_bindings;
     blocks = parent->blocks;
+    go_tags = parent->go_tags;
   }
 }
 
@@ -71,6 +73,25 @@ Value Environment::lookup_block(Value name) {
 
 Frame *Environment::lookup_catch(Value tag) {
   return dynamic_bindings->lookup_catch(tag);
+}
+
+Frame *Environment::lookup_tagbody(Value tag) {
+  Value result = iter_list(
+      [tag](Value go_tagv) -> std::optional<Value> {
+        GoTag *go_tag = get_go_tag(go_tagv);
+        if (go_tag->get_tag() == tag) {
+          return go_tagv;
+        } else {
+          return std::nullopt;
+        }
+      },
+      go_tags);
+
+  if (is_unbound(result)) {
+    return nullptr;
+  } else {
+    return get_go_tag(result)->get_frame();
+  }
 }
 
 void Environment::bind_lexical_variable(Value name, Value value, bool special) {
@@ -123,6 +144,16 @@ Frame *Environment::establish_unwind_protect(Value cleanup_forms) {
 
 Frame *Environment::establish_catch(Value tag) {
   return dynamic_bindings->push_frame(CatchFrame{tag});
+}
+
+Frame *Environment::establish_tagbody(const std::unordered_map<Value, int>& tags) {
+  Frame *frame = dynamic_bindings->push_frame(TagbodyFrame{tags});
+
+  for (auto [tag, _] : tags) {
+    go_tags = make_cons_v(make_go_tag_v(tag, frame), go_tags);
+  }
+
+  return frame;
 }
 
 void Environment::unwind(Frame *frame, bool inclusive) {

@@ -1,7 +1,9 @@
 #include "Frame.h"
+
 #include "GarbageCollector.h"
 #include "cl_fun.h"
 #include "eval.h"
+#include <utility>
 
 namespace lisp {
 
@@ -40,7 +42,24 @@ void CatchFrame::trace(bool marking) {
   trace_value(return_value, marking);
 }
 
-Frame::Frame(FrameData data) : Object{OBJ_FRAME}, data{data} {}
+TagbodyFrame::TagbodyFrame(std::unordered_map<Value, int> tags)
+    : tags{std::move(tags)} {}
+
+void TagbodyFrame::unwind() {}
+
+void TagbodyFrame::trace(bool marking) {}
+
+std::optional<int> TagbodyFrame::get_tag(Value tag) {
+  auto it = tags.find(tag);
+
+  if (it != tags.end()) {
+    return it->second;
+  }
+
+  return std::nullopt;
+}
+
+Frame::Frame(FrameData data) : Object{OBJ_FRAME}, data{std::move(data)} {}
 
 void Frame::trace(bool marking) {
   mark(marking);
@@ -71,6 +90,12 @@ bool Frame::is_catch() const {
 
 CatchFrame &Frame::get_catch() { return std::get<CatchFrame>(data); }
 
+bool Frame::is_tagbody() const {
+  return std::holds_alternative<TagbodyFrame>(data);
+}
+
+TagbodyFrame &Frame::get_tagbody() { return std::get<TagbodyFrame>(data); }
+
 bool is_frame(Value value) {
   if (is_object(value)) {
     return get_object(value)->get_tag() == OBJ_FRAME;
@@ -83,8 +108,11 @@ Frame *get_frame(Value value) {
   return reinterpret_cast<Frame *>(get_object(value));
 }
 
-Frame *make_frame(FrameData data) { return make_object<Frame>(data); }
+Frame *make_frame(FrameData data) {
+  return make_object<Frame>(std::move(data));
+}
 
-Value make_frame_v(FrameData data) { return make_frame(data)->make_value(); }
-
+Value make_frame_v(FrameData data) {
+  return make_frame(std::move(data))->make_value();
+}
 } // namespace lisp

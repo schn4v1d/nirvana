@@ -60,6 +60,10 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/special_operators/setq.cpp
         src/special_operators/throw.cpp
         src/special_operators/unwind_protect.cpp
+        src/special_operators/tagbody.cpp
+        src/special_operators/go.cpp
+        src/GoTag.cpp
+        src/GoTag.h
 )
 
 target_include_directories(nirvana PRIVATE

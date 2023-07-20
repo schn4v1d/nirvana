@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Object.h"
+#include <unordered_map>
 
 namespace lisp {
 
@@ -12,6 +13,7 @@ class Environment : public Object {
   Value lexical_variables{NIL};
   Value lexical_functions{NIL};
   Value blocks{NIL};
+  Value go_tags{NIL};
   DynamicBindings *dynamic_bindings;
 
 public:
@@ -25,6 +27,7 @@ public:
   Value lookup_special(Value name);
   Value lookup_block(Value name);
   Frame *lookup_catch(Value tag);
+  Frame *lookup_tagbody(Value tag);
   void bind_lexical_variable(Value name, Value value, bool special = false);
   void bind_lexical_function(Value name, Value value, bool special = false);
   bool is_lexical_special(Value name);
@@ -32,6 +35,7 @@ public:
   LexicalBlock *establish_block(Value name);
   Frame *establish_unwind_protect(Value cleanup_forms);
   Frame *establish_catch(Value tag);
+  Frame *establish_tagbody(const std::unordered_map<Value, int>& tags);
   void unwind(Frame *frame, bool inclusive = true);
   Value get_function(Value op);
 };

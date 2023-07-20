@@ -18,7 +18,7 @@ void init_special_operators() {
       {SYM_EVAL_WHEN, not_implemented},
       {SYM_FLET, not_implemented},
       {SYM_FUNCTION, special_operators::op_function},
-      {SYM_GO, not_implemented},
+      {SYM_GO, special_operators::op_go},
       {SYM_IF, special_operators::op_if},
       {SYM_LABELS, not_implemented},
       {SYM_LET, special_operators::op_let},
@@ -34,7 +34,7 @@ void init_special_operators() {
       {SYM_RETURN_FROM, special_operators::op_return_from},
       {SYM_SETQ, special_operators::op_setq},
       {SYM_SYMBOL_MACROLET, not_implemented},
-      {SYM_TAGBODY, not_implemented},
+      {SYM_TAGBODY, special_operators::op_tagbody},
       {SYM_THE, not_implemented},
       {SYM_THROW, special_operators::op_throw},
       {SYM_UNWIND_PROTECT, special_operators::op_unwind_protect}};
