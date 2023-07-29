@@ -126,6 +126,12 @@ void init_builtin_functions() {
                           get_integer(cl::second(args)));
       }));
 
+  get_symbol(PKG_CL->intern("-", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        return make_value(get_integer(cl::first(args)) -
+                          get_integer(cl::second(args)));
+      }));
+
   get_symbol(PKG_CL->intern("VECTOR", true))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         Vector *vec = make_vector();

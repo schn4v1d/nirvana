@@ -33,7 +33,7 @@ Value op_let(Value args, Environment *parent) {
 
   Value result{};
   while (!is_nil(body)) {
-    result = eval(cl::car(body), env);
+    result = eval(cl::car(body), env, true);
     body = cl::cdr(body);
   }
 
@@ -65,7 +65,7 @@ Value op_let_star(Value args, Environment *parent) {
 
   Value result{};
   while (!is_nil(body)) {
-    result = eval(cl::car(body), env);
+    result = eval(cl::car(body), env, true);
     body = cl::cdr(body);
   }
 

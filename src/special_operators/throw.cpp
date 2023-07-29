@@ -17,7 +17,7 @@ Value op_throw(Value args, Environment *env) {
     throw std::runtime_error{oss.str()};
   }
 
-  Value return_value = eval(cl::second(args), env);
+  Value return_value = eval(cl::second(args), env, true);
 
   frame->get_catch().return_value = return_value;
 

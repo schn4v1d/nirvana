@@ -10,7 +10,7 @@ Value op_unwind_protect(Value args, Environment *env) {
 
   Frame *frame = env->establish_unwind_protect(cleanup_forms);
 
-  Value result = eval(protected_form, env);
+  Value result = eval(protected_form, env, true);
 
   env->unwind(frame);
 

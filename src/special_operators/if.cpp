@@ -12,9 +12,9 @@ Value op_if(Value args, Environment *env) {
   Value condition = eval(condition_form, env);
 
   if (condition) {
-    return eval(then_form, env);
+    return eval(then_form, env, true);
   } else {
-    return eval(else_form, env);
+    return eval(else_form, env, true);
   }
 }
 

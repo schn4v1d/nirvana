@@ -16,7 +16,7 @@ Value op_catch(Value args, Environment *env) {
 
   if (setjmp(frame->get_catch().jmp_buf) == 0) {
     while (!is_nil(body)) {
-      result = eval(cl::car(body), env);
+      result = eval(cl::car(body), env, true);
       body = cl::cdr(body);
     }
   } else {

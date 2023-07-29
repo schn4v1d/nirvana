@@ -13,6 +13,16 @@
                 (cond ,@rest))))))
 
 (nirvana-builtins:%defmacro
+ 'when
+ #'(lambda (form env)
+     `(if ,(cadr form) (progn ,@(cddr form)))))
+
+(nirvana-builtins:%defmacro
+ 'unless
+ #'(lambda (form env)
+     `(if ,(cadr form) nil (progn ,@(cddr form)))))
+
+(nirvana-builtins:%defmacro
  'or
  #'(lambda (form env)
      (if (null (cdr form))

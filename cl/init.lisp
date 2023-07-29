@@ -38,3 +38,6 @@
 (load "list.lisp")
 (load "sequence.lisp")
 (load "iteration.lisp")
+(load "values.lisp")
+(load "defmacro.lisp")
+(load "setf.lisp")

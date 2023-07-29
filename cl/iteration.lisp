@@ -103,3 +103,20 @@
               (,var (car ,list) (car ,list)))
             ((null ,list) ,result-form)
           ,@body))))
+
+(defun nth (n list)
+  (dotimes (i n)
+    (setq list (cdr list)))
+  (car list))
+
+(defun make-list (size)
+  (let (result)
+    (dotimes (i size)
+      (setq result (cons nil result)))
+    result))
+
+(defun mapcar (function &rest lists)
+  (when (null lists)
+      (error "invalid argument count 1 for mapcar"))
+  (let (result)
+    (do ())))

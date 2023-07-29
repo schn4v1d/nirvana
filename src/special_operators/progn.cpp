@@ -7,7 +7,7 @@ namespace lisp::special_operators {
 Value op_progn(Value body, Environment *env) {
   Value result{NIL};
   while (!is_nil(body)) {
-    result = eval(cl::car(body), env);
+    result = eval(cl::car(body), env, true);
     body = cl::cdr(body);
   }
   return result;

@@ -9,7 +9,7 @@ namespace lisp::special_operators {
 Value op_return_from(Value args, Environment *env) {
   Value block_name = cl::first(args);
 
-  Value return_value = eval(cl::second(args), env);
+  Value return_value = eval(cl::second(args), env, true);
 
   Value blockv = env->lookup_block(block_name);
   if (is_nil(blockv)) {

@@ -3,7 +3,28 @@
 (export '(defmacro))
 
 (defun extract-envvar (lambda-list)
-  ())
+  (let (envvar)
+    (do* ((prev lambda-list list)
+          (list lambda-list (cdr list))
+          (current (car list) (car list)))
+        ((null list))
+      (when (eq current '&environment)
+            (when envvar
+                  (error "multiple &environment"))
+            (setq list (cdr list))
+            (setq envvar (car list))
+            (if (eq (cdr lambda-list) list)
+                (setq lambda-list (cdr list))
+                (rplacd prev (cdr list)))))
+    (values lambda-list envvar)))
+
+(nirvana-builtins:%defmacro
+ 'defmacro
+ #'(lambda (args env)
+     (let ((name (car args))
+           (lambda-list (cadr args))
+           (body (cddr args)))
+             )))
 
 (nirvana-builtins:%defmacro
  'defmacro
@@ -126,12 +147,3 @@
            ',name
            #'(lambda (,args ,env)
                (let () ,@body)))))))
-
-(defmacro mac1 (a b)
-  `(+ ,a (+ ,b 3)))
-
-; (print "MAC1")
-; (print (mac1 4 5))
-
-(defmacro mac2 (&optional (a 2 b) (c 3 d) &rest x)
-  `'(,a ,b ,c ,d ,x))
