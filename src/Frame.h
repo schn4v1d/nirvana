@@ -46,6 +46,7 @@ struct CatchFrame {
 struct TagbodyFrame {
   std::jmp_buf jmp_buf{};
   std::unordered_map<Value, int> tags;
+  int go{0};
 
   explicit TagbodyFrame(std::unordered_map<Value, int> tags);
 
@@ -53,6 +54,8 @@ struct TagbodyFrame {
   void trace(bool marking);
 
   std::optional<int> get_tag(Value tag);
+  [[nodiscard]] int get_go() const;
+  void set_go(int new_go);
 };
 
 using FrameData =

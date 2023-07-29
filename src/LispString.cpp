@@ -3,10 +3,14 @@
 
 namespace lisp {
 
-void LispString::trace(bool marking) { mark(marking); }
-
 LispString::LispString(std::string content)
     : Object{OBJ_STRING}, content{std::move(content)} {}
+
+void LispString::trace(bool marking) { mark(marking); }
+
+std::ostream &LispString::print(std::ostream &os) const {
+  return os << '"' << content << '"';
+}
 
 std::string &LispString::get_content() { return content; }
 

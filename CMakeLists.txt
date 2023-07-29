@@ -65,6 +65,13 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/GoTag.cpp
         src/GoTag.h
         src/special_operators/progn.cpp
+        src/ClosObject.cpp
+        src/ClosObject.h
+        src/Vector.cpp
+        src/Vector.h
+        src/Values.cpp
+        src/Values.h
+        src/special_operators/multiple_value_call.cpp
 )
 
 target_include_directories(nirvana PRIVATE

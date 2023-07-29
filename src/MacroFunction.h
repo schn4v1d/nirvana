@@ -14,7 +14,7 @@ public:
   MacroFunction(Lambda *lambda);
 
   void trace(bool marking) override;
-  Value expand(Value args, Environment *env);
+  Value expand(Value form, Environment *env);
 };
 
 bool is_macro_function(Value value);

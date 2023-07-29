@@ -20,6 +20,8 @@ const obj_tag OBJ_MACRO_FUNCTION = 9;
 const obj_tag OBJ_LEXICAL_BLOCK = 10;
 const obj_tag OBJ_FRAME = 11;
 const obj_tag OBJ_GO_TAG = 12;
+const obj_tag OBJ_VECTOR = 13;
+const obj_tag OBJ_VALUES = 14;
 
 class Object {
   friend class GarbageCollector;

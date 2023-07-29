@@ -3,6 +3,7 @@
 #include "MacroFunction.h"
 #include "Package.h"
 #include "Symbol.h"
+#include "Values.h"
 #include "call_function.h"
 #include "errors.h"
 #include "special_operators.h"
@@ -18,7 +19,9 @@ void init_eval() {
   init_special_operators();
 }
 
-Value eval(Value value, Environment *env) {
+Value eval(Value value, Environment *env, bool multiple_values) {
+  Value result{UNBOUND};
+
   if (is_cons(value)) {
     Cons *cons = get_cons(value);
 
@@ -31,13 +34,13 @@ Value eval(Value value, Environment *env) {
     Value function = env->get_function(op);
 
     if (is_macro_function(function)) {
-      return eval(get_macro_function(function)->expand(cons->get_cdr(), env),
-                  env);
+      return eval(get_macro_function(function)->expand(value, env), env,
+                  multiple_values);
     }
 
-    return call_function(function,
-                         map_list([&env](Value arg) { return eval(arg, env); },
-                                  cons->get_cdr()));
+    result = call_function(
+        function, map_list([&env](Value arg) { return eval(arg, env); },
+                           cons->get_cdr()));
   } else if (is_symbol(value)) {
     Symbol *symbol = get_symbol(value);
 
@@ -45,7 +48,6 @@ Value eval(Value value, Environment *env) {
       return symbol->get_value();
     }
 
-    Value result{UNBOUND};
     if (symbol->is_special() || env->is_lexical_special(value)) {
       result = env->lookup_special(value);
     } else {
@@ -64,10 +66,14 @@ Value eval(Value value, Environment *env) {
 
     // symbol-macro
     // throw NotImplemented();
-
-    return result;
   } else {
     return value;
+  }
+
+  if (is_values(result) && !multiple_values) {
+    return get_values(result)->get_value(0);
+  } else {
+    return result;
   }
 }
 

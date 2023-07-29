@@ -11,6 +11,7 @@
 #include "Symbol.h"
 #include "cl_fun.h"
 #include "errors.h"
+#include <sstream>
 
 namespace lisp {
 
@@ -181,7 +182,9 @@ Value Environment::get_function(Value op) {
 
     return make_lambda_v(std::move(lambda_list), this, body);
   } else {
-    throw std::exception{"invalid function"};
+    std::ostringstream oss{};
+    oss << op << " is an invalid function";
+    throw std::runtime_error{oss.str()};
   }
 }
 

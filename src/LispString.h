@@ -12,6 +12,7 @@ public:
   explicit LispString(std::string content);
 
   void trace(bool marking) override;
+  std::ostream &print(std::ostream &os) const override;
 
   std::string &get_content();
   [[nodiscard]] const std::string &get_content() const;

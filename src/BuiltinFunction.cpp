@@ -8,6 +8,9 @@
 #include "OrdinaryLambdaList.h"
 #include "Package.h"
 #include "Symbol.h"
+#include "Values.h"
+#include "Vector.h"
+#include "call_function.h"
 #include "cl_fun.h"
 #include "eval.h"
 #include "reader.h"
@@ -101,6 +104,57 @@ void init_builtin_functions() {
         } else {
           return NIL;
         }
+      }));
+
+  get_symbol(PKG_CL->intern("EQ", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        if (cl::first(args) == cl::second(args)) {
+          return T;
+        } else {
+          return NIL;
+        }
+      }));
+
+  get_symbol(PKG_CL->intern("ERROR", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        throw std::runtime_error(print_to_string(cl::car(args)));
+      }));
+
+  get_symbol(PKG_CL->intern("+", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        return make_value(get_integer(cl::first(args)) +
+                          get_integer(cl::second(args)));
+      }));
+
+  get_symbol(PKG_CL->intern("VECTOR", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Vector *vec = make_vector();
+
+        if (is_cons(args)) {
+          for (const auto &el : *get_cons(args)) {
+            vec->push(el);
+          }
+        }
+
+        return vec->make_value();
+      }));
+
+  get_symbol(PKG_CL->intern("AREF", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Vector *vec = get_vector(cl::first(args));
+        std::int32_t i = get_integer(cl::second(args));
+
+        return vec->get(i);
+      }));
+
+  get_symbol(PKG_CL->intern("VECTOR-PUSH-EXTEND", true))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Value v = cl::first(args);
+        Vector *vec = get_vector(cl::second(args));
+
+        vec->push(v);
+
+        return make_value((int)vec->size() - 1);
       }));
 
   get_symbol(PKG_NIRVANA_BUILTINS->add_external_symbol("%FIND-PACKAGE"))
@@ -232,9 +286,10 @@ void init_builtin_functions() {
         return NIL;
       }));
 
-  get_symbol(PKG_CL->add_external_symbol("LOAD"))
+  get_symbol(PKG_NIRVANA_BUILTINS->add_external_symbol("%LOAD"))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
         std::filesystem::path old = current_path;
+        Value package_before = get_symbol(SYM_STAR_PACKAGE_STAR)->get_value();
 
         if (std::filesystem::is_directory(current_path)) {
           current_path =
@@ -265,8 +320,33 @@ void init_builtin_functions() {
         }
 
         current_path = old;
+        get_symbol(SYM_STAR_PACKAGE_STAR)->set_value(package_before);
 
         return result;
+      }));
+
+  get_symbol(PKG_NIRVANA_BUILTINS->add_external_symbol("%MAKE_VALUES"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Value list = cl::car(args);
+
+        std::vector<Value> values{};
+
+        map_list(
+            [&](Value v) {
+              values.push_back(v);
+              return NIL;
+            },
+            list);
+
+        return make_values_v(std::move(values));
+      }));
+
+  get_symbol(PKG_NIRVANA_BUILTINS->add_external_symbol("%FUNCALL"))
+      ->set_function(make_builtin_function_v([](Value args) -> Value {
+        Value function = cl::car(args);
+        Value call_args = cl::cadr(args);
+
+        return call_function(function, call_args);
       }));
 }
 

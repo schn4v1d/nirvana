@@ -13,8 +13,9 @@ Value op_go(Value args, Environment *env) {
   env->unwind(frame, false);
 
   TagbodyFrame &tb = frame->get_tagbody();
+  tb.set_go(tb.tags[tag]);
 
-  longjmp(tb.jmp_buf, tb.tags[tag]);
+  longjmp(tb.jmp_buf, 0);
 }
 
 } // namespace lisp::special_operators

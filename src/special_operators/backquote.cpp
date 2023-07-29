@@ -19,7 +19,13 @@ std::vector<Value> process_form(Value form, Environment *env) {
   }
 
   if (SYM_UNQUOTE_SPLICING == cons->get_car()) {
-    Cons *splice = get_cons(eval(get_cons(cons->get_cdr())->get_car(), env));
+    Value splicev = eval(get_cons(cons->get_cdr())->get_car(), env);
+
+    if (is_nil(splicev)) {
+      return {};
+    }
+
+    Cons *splice = get_cons(splicev);
     std::vector<Value> result{};
 
     for (const auto &subform : *splice) {

@@ -59,6 +59,10 @@ std::optional<int> TagbodyFrame::get_tag(Value tag) {
   return std::nullopt;
 }
 
+int TagbodyFrame::get_go() const { return go; }
+
+void TagbodyFrame::set_go(int new_go) { go = new_go; }
+
 Frame::Frame(FrameData data) : Object{OBJ_FRAME}, data{std::move(data)} {}
 
 void Frame::trace(bool marking) {

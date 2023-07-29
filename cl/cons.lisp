@@ -6,13 +6,16 @@
          caaddr cadaar cadadr caddar cadddr cdaaar cdaadr cdadar
          cdaddr cddaar cddadr cdddar cddddr first second third
          fourth fifth sixth seventh eighth ninth tenth endp list
-         rplaca rplacd))
+         rplaca rplacd atom))
 
 (defun cons (car cdr)
   (nirvana-builtins:%cons car cdr))
 
 (defun consp (x)
   (nirvana-builtins:%consp x))
+
+(defun atom (x)
+  (not (consp x)))
 
 (defun null (x)
   (nirvana-builtins:%null x))
@@ -145,14 +148,3 @@
 
 (defun endp (list)
   (null list))
-
-(defun list (&rest objects)
-  (let (result
-        current)
-    (dolist (x objects result)
-      (if (null current)
-          (setq result (cons x nil)
-                current result)
-          (let ((new (cons x nil)))
-            (rplacd current new)
-            (setq current new))))))

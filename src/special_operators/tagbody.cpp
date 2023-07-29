@@ -14,19 +14,24 @@ Value op_tagbody(Value args, Environment *parent) {
   std::vector<Value> forms;
   std::unordered_map<Value, int> tags{};
 
-  map_list([&](Value form) {
-    if (is_symbol(form) || is_integer(form)) {
-      tags.insert({form, (int)forms.size()});
-    } else {
-      forms.push_back(form);
-    }
+  map_list(
+      [&](Value form) {
+        if (is_symbol(form) || is_integer(form)) {
+          tags.insert({form, (int)forms.size()});
+        } else {
+          forms.push_back(form);
+        }
 
-    return NIL;
-  }, args);
+        return NIL;
+      },
+      args);
 
   Frame *frame = env->establish_tagbody(tags);
 
-  int go = setjmp(frame->get_tagbody().jmp_buf);
+  frame->get_tagbody().set_go(0);
+
+  setjmp(frame->get_tagbody().jmp_buf);
+  int go = frame->get_tagbody().get_go();
   while (go < forms.size()) {
     eval(forms[go], env);
     ++go;

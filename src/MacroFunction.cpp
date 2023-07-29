@@ -14,8 +14,9 @@ void MacroFunction::trace(bool marking) {
   trace_value(lambda->make_value(), marking);
 }
 
-Value MacroFunction::expand(Value args, Environment *env) {
-  Value expansion = lambda->call(list_from_cppvector({args, env->make_value()}));
+Value MacroFunction::expand(Value form, Environment *env) {
+  Value expansion = lambda->call(list_from_cppvector({form, env->make_value()}));
+//  std::cout << "Expanding: " << form << std::endl;
 //  std::cout << "Expanded to: " << expansion << std::endl;
   return expansion;
 }

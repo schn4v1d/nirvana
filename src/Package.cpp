@@ -6,13 +6,16 @@
 #include <cassert>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace lisp {
 
-std::unordered_map<std::string, Package *> packages{};
+std::unordered_set<Package *> all_packages{};
+std::unordered_map<std::string, Package *> package_map{};
 
 Package::Package(std::string_view name) : Object{OBJ_PACKAGE}, name{name} {
-  packages.insert(std::make_pair(name, this));
+  all_packages.insert(this);
+  package_map.insert(std::make_pair(name, this));
 }
 
 void Package::trace(bool marking) {
@@ -145,9 +148,9 @@ Value find_package(Value arg) {
 
   LispString *name = get_string(cl::string(arg));
 
-  auto it = packages.find(name->get_content());
+  auto it = package_map.find(name->get_content());
 
-  if (it != packages.end()) {
+  if (it != package_map.end()) {
     return (*it).second->make_value();
   } else {
     return NIL;

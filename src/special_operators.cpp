@@ -26,7 +26,7 @@ void init_special_operators() {
       {SYM_LOAD_TIME_VALUE, not_implemented},
       {SYM_LOCALLY, not_implemented},
       {SYM_MACROLET, not_implemented},
-      {SYM_MULTIPLE_VALUE_CALL, not_implemented},
+      {SYM_MULTIPLE_VALUE_CALL, special_operators::op_multiple_value_call},
       {SYM_MULTIPLE_VALUE_PROG1, not_implemented},
       {SYM_PROGN, special_operators::op_progn},
       {SYM_PROGV, not_implemented},

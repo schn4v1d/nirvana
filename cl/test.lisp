@@ -1,15 +1,9 @@
 (in-package common-lisp-user)
 
-(export '(not identity))
+(nirvana-builtins:%defmacro
+ 'lambda
+ #'(lambda (args env)
+     `#'(lambda ,(car args) ,@(cdr args))))
 
-(defun not (x)
-  (if x nil t))
-
-(defun identity (object)
-  object)
-
-(nirvana-builtins:%defmacro 'lambda
-           #'(lambda (args env)
-               `#'(lambda ,(car args) ,@(cdr args))))
-
-(list)
+(dolist (x '(1 2 3))
+  (print x))
