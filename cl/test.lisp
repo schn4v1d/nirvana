@@ -5,5 +5,4 @@
  #'(lambda (args env)
      `#'(lambda ,(car args) ,@(cdr args))))
 
-(dolist (x '(1 2 3))
-  (print x))
+(multiple-value-call #'list (values 1 2 3) 4 5)

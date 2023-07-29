@@ -1,5 +1,6 @@
 #include "Values.h"
 #include "GarbageCollector.h"
+#include <iostream>
 
 namespace lisp {
 
@@ -11,7 +12,7 @@ void Values::trace(bool marking) {
 }
 
 Values::Values(std::vector<Value> &&values)
-    : Object{OBJ_VALUES}, values{std::move(values)} {}
+    : Object{OBJ_VALUES}, values{std::forward<std::vector<Value>>(values)} {}
 
 const Value &Values::get_value(size_t i) const {
   if (values.empty()) {
@@ -36,11 +37,12 @@ Values *get_values(Value value) {
 }
 
 Values *make_values(std::vector<Value> &&values) {
-  return make_object<Values>(std::move(values));
+  return make_object<Values>(
+      std::forward<std::vector<Value>>(std::move(values)));
 }
 
 Value make_values_v(std::vector<Value> &&values) {
-  return make_values(std::move(values))->make_value();
+  return make_values(std::forward<std::vector<Value>>(values))->make_value();
 }
 
 } // namespace lisp

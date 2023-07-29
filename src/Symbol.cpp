@@ -144,9 +144,9 @@ void init_symbols() {
   SYM_LOAD_TIME_VALUE = PKG_CL->add_external_symbol("LOAD-TIME-VALUE");
   SYM_LOCALLY = PKG_CL->add_external_symbol("LOCALLY");
   SYM_MACROLET = PKG_CL->add_external_symbol("MACROLET");
-  SYM_MULTIPLE_VALUE_CALL = PKG_CL->add_external_symbol("MULTIPLE_VALUE_CALL");
+  SYM_MULTIPLE_VALUE_CALL = PKG_CL->add_external_symbol("MULTIPLE-VALUE-CALL");
   SYM_MULTIPLE_VALUE_PROG1 =
-      PKG_CL->add_external_symbol("MULTIPLE_VALUE_PROG1");
+      PKG_CL->add_external_symbol("MULTIPLE-VALUE-PROG1");
   SYM_PROGN = PKG_CL->add_external_symbol("PROGN");
   SYM_PROGV = PKG_CL->add_external_symbol("PROGV");
   SYM_QUOTE = PKG_CL->add_external_symbol("QUOTE");
@@ -155,7 +155,7 @@ void init_symbols() {
   SYM_UNQUOTE_SPLICING = PKG_CL->add_external_symbol("UNQUOTE-SPLICING");
   SYM_RETURN_FROM = PKG_CL->add_external_symbol("RETURN-FROM");
   SYM_SETQ = PKG_CL->add_external_symbol("SETQ");
-  SYM_SYMBOL_MACROLET = PKG_CL->add_external_symbol("SYMBOL_MACROLET");
+  SYM_SYMBOL_MACROLET = PKG_CL->add_external_symbol("SYMBOL-MACROLET");
   SYM_TAGBODY = PKG_CL->add_external_symbol("TAGBODY");
   SYM_THE = PKG_CL->add_external_symbol("THE");
   SYM_THROW = PKG_CL->add_external_symbol("THROW");

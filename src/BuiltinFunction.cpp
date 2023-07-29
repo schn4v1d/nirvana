@@ -325,10 +325,8 @@ void init_builtin_functions() {
         return result;
       }));
 
-  get_symbol(PKG_NIRVANA_BUILTINS->add_external_symbol("%MAKE_VALUES"))
+  get_symbol(PKG_CL->add_external_symbol("VALUES"))
       ->set_function(make_builtin_function_v([](Value args) -> Value {
-        Value list = cl::car(args);
-
         std::vector<Value> values{};
 
         map_list(
@@ -336,7 +334,7 @@ void init_builtin_functions() {
               values.push_back(v);
               return NIL;
             },
-            list);
+            args);
 
         return make_values_v(std::move(values));
       }));
