@@ -313,14 +313,12 @@ void init_builtin_functions() {
         buffer << t.rdbuf();
         std::istringstream input_stream{buffer.str()};
 
-        Value result = NIL;
-
         Environment *env = make_environment();
 
         try {
           while (true) {
             Value v = read(input_stream, env);
-            result = eval(v, env);
+            eval(v, env);
           }
         } catch (ReadEndOfFile &e) {
         }
@@ -328,7 +326,7 @@ void init_builtin_functions() {
         current_path = old;
         get_symbol(SYM_STAR_PACKAGE_STAR)->set_value(package_before);
 
-        return result;
+        return T;
       }));
 
   get_symbol(PKG_CL->add_external_symbol("VALUES"))

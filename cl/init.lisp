@@ -30,8 +30,13 @@
 (defun funcall (function &rest args)
   (nirvana-builtins:%funcall function args))
 
+(setq *compile-file-pathname* nil *compile-file-truename* nil *load-pathname* nil *load-truename* nil)
+
 (defun load (pathname)
-  (nirvana-builtins:%load pathname))
+  (let ((old *load-pathname*))
+    (setq *load-pathname* pathname *load-truename* pathname)
+    (nirvana-builtins:%load pathname)
+    (setq *load-pathname* old *load-truename* old)))
 
 (load "cons.lisp")
 (load "logic.lisp")
