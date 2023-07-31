@@ -72,6 +72,8 @@ add_executable(nirvana src/main.cpp src/util.h src/util.cpp
         src/Values.cpp
         src/Values.h
         src/special_operators/multiple_value_call.cpp
+        src/Character.cpp
+        src/Character.h
 )
 
 target_include_directories(nirvana PRIVATE

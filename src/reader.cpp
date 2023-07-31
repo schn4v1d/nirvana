@@ -1,4 +1,5 @@
 #include "reader.h"
+#include "Character.h"
 #include "Cons.h"
 #include "LispString.h"
 #include "Package.h"
@@ -173,6 +174,9 @@ void init_reader_macros() {
     case '\'':
       input.get();
       return make_cons_v(SYM_FUNCTION, make_cons_v(read(input, env), NIL));
+    case '\\':
+      input.get();
+      return make_character_v((char) input.get());
     default:
       throw NotImplemented{};
     }
